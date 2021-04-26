@@ -1,0 +1,6 @@
+CS43L22_config.c:6:13:CS43l22_write	32	static
+CS43L22_config.c:12:6:CS43L22_Init	8	static
+CS43L22_config.c:26:6:CS43L22_SetVolume	16	static
+CS43L22_config.c:33:6:CS43L22_SetMute	16	static
+CS43L22_config.c:52:6:CS43L22_Start	8	static
+CS43L22_config.c:60:6:CS43L22_Stop	8	static

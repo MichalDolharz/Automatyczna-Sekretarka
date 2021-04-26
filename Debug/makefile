@@ -10,7 +10,6 @@ RM := rm -rf
 -include sources.mk
 -include USB_HOST/Target/subdir.mk
 -include USB_HOST/App/subdir.mk
--include PDM2PCM/App/subdir.mk
 -include Middlewares/Third_Party/FatFs/src/option/subdir.mk
 -include Middlewares/Third_Party/FatFs/src/subdir.mk
 -include Middlewares/ST/STM32_USB_Host_Library/Core/Src/subdir.mk
@@ -56,7 +55,7 @@ all: Automatyczna_Sekretarka.elf secondary-outputs
 
 # Tool invocations
 Automatyczna_Sekretarka.elf: $(OBJS) $(USER_OBJS) C:\Users\Admin\STM32CubeIDE\workspace_1.4.0\Automatyczna_Sekretarka\Automatyczna-Sekretarka\STM32F411VETX_FLASH.ld
-	arm-none-eabi-gcc -o "Automatyczna_Sekretarka.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\Admin\STM32CubeIDE\workspace_1.4.0\Automatyczna_Sekretarka\Automatyczna-Sekretarka\STM32F411VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Automatyczna_Sekretarka.map" -Wl,--gc-sections -static -L../Middlewares/ST/STM32_Audio/Addons/PDM/Lib --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+	arm-none-eabi-gcc -o "Automatyczna_Sekretarka.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\Admin\STM32CubeIDE\workspace_1.4.0\Automatyczna_Sekretarka\Automatyczna-Sekretarka\STM32F411VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Automatyczna_Sekretarka.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

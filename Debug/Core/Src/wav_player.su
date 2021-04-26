@@ -1,0 +1,11 @@
+wav_player.c:28:6:audioI2S_setHandle	16	static
+wav_player.c:33:6:HAL_I2S_TxCpltCallback	16	static
+wav_player.c:40:6:HAL_I2S_TxHalfCpltCallback	16	static
+wav_player.c:47:13:wavPlayer_reset	4	static
+wav_player.c:53:6:wavPlayer_fileSelect	64	static
+wav_player.c:65:6:wavPlayer_play	8	static
+wav_player.c:75:6:wavPlayer_process	8	static
+wav_player.c:116:6:wavPlayer_stop	8	static
+wav_player.c:123:6:wavPlayer_pause	8	static
+wav_player.c:129:6:wavPlayer_resume	8	static
+wav_player.c:135:6:wavPlayer_isFinished	4	static
