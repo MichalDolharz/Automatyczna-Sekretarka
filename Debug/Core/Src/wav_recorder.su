@@ -1,0 +1,7 @@
+wav_recorder.c:41:9:StartRecording	16	static
+wav_recorder.c:45:10:StopRecording	8	static
+wav_recorder.c:50:6:WavRecordingProcess	32	static
+wav_recorder.c:172:13:WavFileHeaderInit	32	static
+wav_recorder.c:261:13:WavFileHeaderUpdate	16	static
+wav_recorder.c:277:6:BSP_AUDIO_IN_TransferComplete_CallBack	8	static
+wav_recorder.c:300:6:BSP_AUDIO_IN_HalfTransfer_CallBack	8	static
