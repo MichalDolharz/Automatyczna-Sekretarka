@@ -146,8 +146,7 @@ int main(void) {
 	if (BSP_AUDIO_IN_Init(DEFAULT_AUDIO_IN_FREQ,
 	DEFAULT_AUDIO_IN_BIT_RESOLUTION,
 	DEFAULT_AUDIO_IN_CHANNEL_NBR) != AUDIO_OK)
-		Info_UART(
-				"NIE UDALO SIE ZAINICJALIZAOWAC AUDIO_IN\ (wav_recorder.c)\r\n");
+		Info_UART("NIE UDALO SIE ZAINICJALIZAOWAC AUDIO_IN\ (wav_recorder.c)\r\n");
 	else
 		Info_UART("Zainicjalizowano AUDIO_IN \r\n");
 
