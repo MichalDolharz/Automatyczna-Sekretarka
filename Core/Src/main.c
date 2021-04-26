@@ -26,10 +26,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "stm32f411e_discovery_audio.h"
-//#include "waveplayer.h"
 #include "wav_recorder.h"
-//#include "File_Handling.h"
-//#include "AUDIO.h"
 
 /* USER CODE END Includes */
 
@@ -65,7 +62,7 @@ extern char USBHPath[4];
 
 extern ApplicationTypeDef Appli_state; // status USB
 
-__IO uint32_t recordingStatus = STATUS_RECORDING_INACTIVE;
+__IO uint32_t recordingStatus = STATUS_RECORDING_INACTIVE; // status nagrywania
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -171,7 +168,6 @@ int main(void) {
 				//Info_UART("Czekam na sygnal do nagrywania...\r\n");
 
 				if (recordingStatus == STATUS_RECORDING_ACTIVE) {
-					//Info_UART("halo2");
 					HAL_GPIO_WritePin(LED_Red_GPIO_Port, LED_Red_Pin, SET);
 					WavRecordingProcess(recordsCounter);
 					StopRecording();
