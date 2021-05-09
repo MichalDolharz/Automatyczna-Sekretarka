@@ -53,12 +53,12 @@ void WavRecordingProcess(uint8_t recordNumber) {
 	uint32_t bytesWritten = 0;
 
 	// Zamontowanie zew. pamieci USB
-	if (f_mount(&USBHFatFS, USBHPath, 1) != FR_OK) {
+	/*if (f_mount(&USBHFatFS, USBHPath, 1) != FR_OK) {
 		Info_UART("NIE ZAMONTOWANO POPRAWNIE USB (main.c)\r\n");
 	} else {
 		Info_UART("Zamontowano USB\r\n");
 	}
-
+*/
 	// Ustalenie nazwy pliku
 	char filename[] = "RECn.wav";
 	sprintf(filename, "REC%d.wav", recordNumber);
@@ -162,10 +162,11 @@ void WavRecordingProcess(uint8_t recordNumber) {
 		Info_UART("Plik zamkniety\r\n");
 
 	// Odmontowanie pamieci USB
-	if (f_mount(NULL, USBHPath, 1) != FR_OK)
+	/*if (f_mount(NULL, USBHPath, 1) != FR_OK)
 		Info_UART("NIE UDALO SIE ODMONTOWANIE USB (wav_recorder.c)\r\n");
 	else
 		Info_UART("Odmontowano USB\r\n\r\n");
+		*/
 }
 
 //static uint32_t WavFileHeaderInit(uint32_t *header)
