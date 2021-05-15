@@ -12,17 +12,17 @@
 #include "stm32f411e_discovery_audio.h"
 
 // Zmienne
-uint8_t recStatus = 0;                       		// flaga nagrywania
-uint8_t header[44];                      // naglowek pliku wav, wymaga 44 znakow
-uint16_t recBuffer[RECBUFFER_SIZE];          		// bufor nagrywania
-uint32_t dataSize;     // zmienna do zapisaywania ilosci danych (rozmiaru pliku)
+uint8_t recStatus = 0; // flaga nagrywania
+uint8_t header[44]; // naglowek pliku wav, wymaga 44 znakow
+uint16_t recBuffer[RECBUFFER_SIZE]; // bufor nagrywania
+uint32_t dataSize; // zmienna do zapisaywania ilosci danych (rozmiaru pliku)
 FIL WavFile; // Plik, domyslnie w formacie .wav
 static uint16_t internalBuffer[INTERNAL_BUFF_SIZE]; // w tym buforze zapisywane sa biezace nagrania
 static uint16_t PCMOutBuffer[PCM_OUT_SIZE * 2]; // w tym buforze zapisywane sa nagrania w modulacji PCM
-__IO uint8_t dataReady = 0;         // flaga gotowosci danych do zapisu do pliku
-__IO uint32_t bufferOffset = 0;              		// offset buffora nagrywania
-__IO uint32_t counter = 0;                   		// licznik danych
-__IO FRESULT fresult;      // zmienna do kontroli niektorych funkcji obslugi USB
+__IO uint8_t dataReady = 0; // flaga gotowosci danych do zapisu do pliku
+__IO uint32_t bufferOffset = 0; // offset buffora nagrywania
+__IO uint32_t counter = 0; // licznik danych
+__IO FRESULT fresult; // zmienna do kontroli niektorych funkcji obslugi USB
 
 // Zewnetrzne zmienne
 extern __IO uint32_t recordingTime; // biezacy czas nagrywania (odliczanie w stm32f4xx_it.h)
@@ -108,7 +108,6 @@ void WavRecordingProcess(uint8_t recordNumber) {
 
 			// Sprawdza, czy sa dostepne dane do wprowadzenia do pliku .wav
 			if (dataReady) {
-				//HAL_GPIO_WritePin(LED_Green_GPIO_Port, LED_Green_Pin, 1);
 				// Wyzerowanie flagi
 				dataReady = 0;
 
