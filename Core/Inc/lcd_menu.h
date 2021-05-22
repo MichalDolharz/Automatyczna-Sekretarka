@@ -1,10 +1,3 @@
-/*
- * lcd_menu.h
- *
- *  Created on: May 22, 2021
- *      Author: Michal Dolharz
- */
-
 #ifndef INC_LCD_MENU_H_
 #define INC_LCD_MENU_H_
 

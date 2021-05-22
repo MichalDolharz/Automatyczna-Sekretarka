@@ -1,9 +1,3 @@
-/*
- * lcd_menu.c
- *
- *  Created on: May 22, 2021
- *      Author: Komputer
- */
 #include "lcd_menu.h"
 
 void printMenu(char *menu[], int n) {
