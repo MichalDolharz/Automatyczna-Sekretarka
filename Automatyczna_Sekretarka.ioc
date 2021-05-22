@@ -122,13 +122,8 @@ Mcu.Pin5=PA1
 Mcu.Pin6=PA2
 Mcu.Pin7=PA3
 Mcu.Pin8=PA4
-<<<<<<< HEAD
 Mcu.Pin9=PA6
-Mcu.PinsNb=31
-=======
-Mcu.Pin9=PA5
 Mcu.PinsNb=37
->>>>>>> d73fca156c0a60ca851ddb38929335fa4579b5eb
 Mcu.ThirdPartyNb=0
 Mcu.UserConstants=
 Mcu.UserName=STM32F411VETx
@@ -229,10 +224,6 @@ PD15.GPIOParameters=GPIO_Label
 PD15.GPIO_Label=LED_Blue
 PD15.Locked=true
 PD15.Signal=GPIO_Output
-<<<<<<< HEAD
-PD4.GPIOParameters=GPIO_Label
-PD4.GPIO_Label=AUDIO_RST
-=======
 PD2.GPIOParameters=GPIO_Label
 PD2.GPIO_Label=LCD_D6
 PD2.Locked=true
@@ -241,7 +232,8 @@ PD3.GPIOParameters=GPIO_Label
 PD3.GPIO_Label=LCD_D5
 PD3.Locked=true
 PD3.Signal=GPIO_Output
->>>>>>> d73fca156c0a60ca851ddb38929335fa4579b5eb
+PD4.GPIOParameters=GPIO_Label
+PD4.GPIO_Label=AUDIO_RST
 PD4.Locked=true
 PD4.Signal=GPIO_Output
 PD6.GPIOParameters=GPIO_Label
