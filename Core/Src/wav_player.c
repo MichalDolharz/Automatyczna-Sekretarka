@@ -179,7 +179,7 @@ void wavPlayer_process(void) {
 	case PLAYER_CONTROL_EndOfFile:
 		f_close(&wavFile);
 		wavPlayer_reset();
-		isFinished = true;
+		wavPlayer_stop();
 		playerControlSM = PLAYER_CONTROL_Idle;
 		break;
 	}

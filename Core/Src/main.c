@@ -77,6 +77,12 @@ __IO uint32_t recordingStatus = STATUS_RECORDING_INACTIVE; // status nagrywania
 
 uint16_t Joystick[2];
 
+/*
+ PLAY_Idle,
+ PLAY_Pause,
+ PLAY_Resume,
+ */
+PLAY_State_e playingStatus = PLAY_Idle;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -101,14 +107,21 @@ void Info_UART(char *info) {
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	if (GPIO_Pin == GPIO_PIN_1) {
 		Info_UART("Wcisnieto przycisk\r\n");
+		if (playingStatus == PLAY_Resume) {
+			playingStatus = PLAY_Pause;
+		} else if (playingStatus == PLAY_Pause) {
+			playingStatus = PLAY_Resume;
+		} else {
+			// Zatrzymanie nagrywania gdy jest wlaczone
+			if (recordingStatus == STATUS_RECORDING_ACTIVE) {
+				recordingStatus = STATUS_RECORDING_INACTIVE;
 
-		// Zatrzymanie nagrywania gdy jest wlaczone
-		if (recordingStatus == STATUS_RECORDING_ACTIVE) {
-			recordingStatus = STATUS_RECORDING_INACTIVE;
-		}
-		// Wlaczenie nagrywania gdy jest wylaczone
-		else {
-			recordingStatus = STATUS_RECORDING_ACTIVE;
+			}
+			// Wlaczenie nagrywania gdy jest wylaczone
+			else {
+				recordingStatus = STATUS_RECORDING_ACTIVE;
+			}
+
 		}
 
 	}
@@ -228,53 +241,55 @@ int main(void) {
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	while (1) {
-		//TEST JOYSTICKA
-		while (1) {
-			/*
-			 //Prawo
-			 if (Joystick[1] > 3700) {
-			 HAL_GPIO_WritePin(LED_Green_GPIO_Port, LED_Green_Pin, SET);
-			 }
-			 //Lewo
-			 else if (Joystick[1] < 300) {
-			 HAL_GPIO_WritePin(LED_Red_GPIO_Port, LED_Red_Pin, SET);
-			 } else {
-			 HAL_GPIO_WritePin(LED_Red_GPIO_Port, LED_Red_Pin, RESET);
-			 HAL_GPIO_WritePin(LED_Green_GPIO_Port, LED_Green_Pin, RESET);
-			 }
-			 //Dół
-			 if (Joystick[0] > 3700) {
-			 HAL_GPIO_WritePin(LED_Orange_GPIO_Port, LED_Orange_Pin, SET);
-			 }
-			 //Góra
-			 else if (Joystick[0] < 300) {
-			 HAL_GPIO_WritePin(LED_Blue_GPIO_Port, LED_Blue_Pin, SET);
-			 } else {
-			 HAL_GPIO_WritePin(LED_Blue_GPIO_Port, LED_Blue_Pin, RESET);
-			 HAL_GPIO_WritePin(LED_Orange_GPIO_Port, LED_Orange_Pin, RESET);
-			 }
-			 */
-			switch (Joystick_State()) {
-			case 1:
-				HAL_GPIO_WritePin(LED_Blue_GPIO_Port, LED_Blue_Pin, SET);
-				break;
-			case 2:
-				HAL_GPIO_WritePin(LED_Orange_GPIO_Port, LED_Orange_Pin, SET);
-				break;
-			case 3:
-				HAL_GPIO_WritePin(LED_Green_GPIO_Port, LED_Green_Pin, SET);
-				break;
-			case 4:
-				HAL_GPIO_WritePin(LED_Red_GPIO_Port, LED_Red_Pin, SET);
-				break;
+		/*
+		 //TEST JOYSTICKA
+		 while (1) {
 
-			default:
-				HAL_GPIO_WritePin(LED_Red_GPIO_Port, LED_Red_Pin, RESET);
-				HAL_GPIO_WritePin(LED_Green_GPIO_Port, LED_Green_Pin, RESET);
-				HAL_GPIO_WritePin(LED_Blue_GPIO_Port, LED_Blue_Pin, RESET);
-				HAL_GPIO_WritePin(LED_Orange_GPIO_Port, LED_Orange_Pin, RESET);
-			}
-		}
+		 //Prawo
+		 if (Joystick[1] > 3700) {
+		 HAL_GPIO_WritePin(LED_Green_GPIO_Port, LED_Green_Pin, SET);
+		 }
+		 //Lewo
+		 else if (Joystick[1] < 300) {
+		 HAL_GPIO_WritePin(LED_Red_GPIO_Port, LED_Red_Pin, SET);
+		 } else {
+		 HAL_GPIO_WritePin(LED_Red_GPIO_Port, LED_Red_Pin, RESET);
+		 HAL_GPIO_WritePin(LED_Green_GPIO_Port, LED_Green_Pin, RESET);
+		 }
+		 //Dół
+		 if (Joystick[0] > 3700) {
+		 HAL_GPIO_WritePin(LED_Orange_GPIO_Port, LED_Orange_Pin, SET);
+		 }
+		 //Góra
+		 else if (Joystick[0] < 300) {
+		 HAL_GPIO_WritePin(LED_Blue_GPIO_Port, LED_Blue_Pin, SET);
+		 } else {
+		 HAL_GPIO_WritePin(LED_Blue_GPIO_Port, LED_Blue_Pin, RESET);
+		 HAL_GPIO_WritePin(LED_Orange_GPIO_Port, LED_Orange_Pin, RESET);
+		 }
+
+		 switch (Joystick_State()) {
+		 case 1:
+		 HAL_GPIO_WritePin(LED_Blue_GPIO_Port, LED_Blue_Pin, SET);
+		 break;
+		 case 2:
+		 HAL_GPIO_WritePin(LED_Orange_GPIO_Port, LED_Orange_Pin, SET);
+		 break;
+		 case 3:
+		 HAL_GPIO_WritePin(LED_Green_GPIO_Port, LED_Green_Pin, SET);
+		 break;
+		 case 4:
+		 HAL_GPIO_WritePin(LED_Red_GPIO_Port, LED_Red_Pin, SET);
+		 break;
+
+		 default:
+		 HAL_GPIO_WritePin(LED_Red_GPIO_Port, LED_Red_Pin, RESET);
+		 HAL_GPIO_WritePin(LED_Green_GPIO_Port, LED_Green_Pin, RESET);
+		 HAL_GPIO_WritePin(LED_Blue_GPIO_Port, LED_Blue_Pin, RESET);
+		 HAL_GPIO_WritePin(LED_Orange_GPIO_Port, LED_Orange_Pin, RESET);
+		 }
+		 }
+		 */
 		/* USER CODE END WHILE */
 		MX_USB_HOST_Process();
 
@@ -293,6 +308,7 @@ int main(void) {
 				isSdCardMounted = 1;
 			}
 			if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)) {
+				HAL_Delay(500);
 				if (recordingStatus == STATUS_RECORDING_ACTIVE) {
 					BSP_AUDIO_IN_Init(DEFAULT_AUDIO_IN_FREQ,
 					DEFAULT_AUDIO_IN_BIT_RESOLUTION,
@@ -305,33 +321,45 @@ int main(void) {
 					//	recordsCounter = 0;
 				}
 				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
-				HAL_Delay(500);
+				playingStatus = PLAY_Resume;
+				HAL_Delay(1000);
 				wavPlayer_fileSelect(WAV_FILE1);
 				wavPlayer_play();
 
 				while (!wavPlayer_isFinished()) {
 					wavPlayer_process();
-					if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)) {
-						pauseResumeToggle ^= 1;
-						if (pauseResumeToggle) {
-							HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
-							wavPlayer_pause();
-							HAL_Delay(200);
-						} else {
-							HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15,
-									GPIO_PIN_RESET);
-							HAL_Delay(1000);
-							if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)) {
-								wavPlayer_stop();
-							}
-							{
-								wavPlayer_resume();
-							}
+					if (playingStatus == PLAY_Pause) {
+						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
+						wavPlayer_pause();
+						while (playingStatus == PLAY_Pause) {
 						}
+						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
+						wavPlayer_resume();
 					}
+
+					/*
+					 if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)) {
+					 pauseResumeToggle ^= 1;
+					 if (pauseResumeToggle) {
+					 HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
+					 wavPlayer_pause();
+					 HAL_Delay(200);
+					 } else {
+					 HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15,
+					 GPIO_PIN_RESET);
+					 HAL_Delay(1000);
+					 if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)) {
+					 wavPlayer_stop();
+					 }
+					 {
+					 wavPlayer_resume();
+					 }
+					 }
+					 }
+					 */
 				}
+				playingStatus = PLAY_Idle;
 				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
-				HAL_Delay(1000);
 
 			}
 
@@ -683,7 +711,7 @@ static void MX_GPIO_Init(void) {
 	HAL_NVIC_SetPriority(EXTI0_IRQn, 0, 0);
 	HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 
-	HAL_NVIC_SetPriority(EXTI1_IRQn, 0, 0);
+	HAL_NVIC_SetPriority(EXTI1_IRQn, 15, 0);
 	HAL_NVIC_EnableIRQ(EXTI1_IRQn);
 
 }
