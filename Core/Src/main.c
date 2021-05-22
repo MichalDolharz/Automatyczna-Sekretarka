@@ -203,6 +203,25 @@ int main(void) {
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	while (1) {
+		//TEST JOYSTICKA
+		while (1) {
+			if (Joystick[1] > 3700) {
+				HAL_GPIO_WritePin(LED_Green_GPIO_Port, LED_Green_Pin, SET);
+			} else if (Joystick[1] < 300) {
+				HAL_GPIO_WritePin(LED_Red_GPIO_Port, LED_Red_Pin, SET);
+			} else {
+				HAL_GPIO_WritePin(LED_Red_GPIO_Port, LED_Red_Pin, RESET);
+				HAL_GPIO_WritePin(LED_Green_GPIO_Port, LED_Green_Pin, RESET);
+			}
+			if (Joystick[0] > 3700) {
+				HAL_GPIO_WritePin(LED_Orange_GPIO_Port, LED_Orange_Pin, SET);
+			} else if (Joystick[0] < 300) {
+				HAL_GPIO_WritePin(LED_Blue_GPIO_Port, LED_Blue_Pin, SET);
+			} else {
+				HAL_GPIO_WritePin(LED_Blue_GPIO_Port, LED_Blue_Pin, RESET);
+				HAL_GPIO_WritePin(LED_Orange_GPIO_Port, LED_Orange_Pin, RESET);
+			}
+		}
 		/* USER CODE END WHILE */
 		MX_USB_HOST_Process();
 
@@ -344,7 +363,7 @@ static void MX_ADC1_Init(void) {
 	hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
 	hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
 	hadc1.Init.NbrOfConversion = 2;
-	hadc1.Init.DMAContinuousRequests = DISABLE;
+	hadc1.Init.DMAContinuousRequests = ENABLE;
 	hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
 	if (HAL_ADC_Init(&hadc1) != HAL_OK) {
 		Error_Handler();
