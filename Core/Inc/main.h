@@ -62,9 +62,18 @@ void Error_Handler(void);
 #define LCD_E_GPIO_Port GPIOC
 #define LCD_RS_Pin GPIO_PIN_15
 #define LCD_RS_GPIO_Port GPIOC
+#define VBUS_Pin_Pin GPIO_PIN_0
+#define VBUS_Pin_GPIO_Port GPIOC
 #define Blue_Button_Pin GPIO_PIN_0
 #define Blue_Button_GPIO_Port GPIOA
 #define Blue_Button_EXTI_IRQn EXTI0_IRQn
+#define Joystick_Button_Pin GPIO_PIN_1
+#define Joystick_Button_GPIO_Port GPIOA
+#define Joystick_Button_EXTI_IRQn EXTI1_IRQn
+#define ADC1_6_VRx_Pin GPIO_PIN_6
+#define ADC1_6_VRx_GPIO_Port GPIOA
+#define ADC1_7_VRy_Pin GPIO_PIN_7
+#define ADC1_7_VRy_GPIO_Port GPIOA
 #define LED_Green_Pin GPIO_PIN_12
 #define LED_Green_GPIO_Port GPIOD
 #define LED_Orange_Pin GPIO_PIN_13
@@ -73,6 +82,8 @@ void Error_Handler(void);
 #define LED_Red_GPIO_Port GPIOD
 #define LED_Blue_Pin GPIO_PIN_15
 #define LED_Blue_GPIO_Port GPIOD
+#define AUDIO_RST_Pin GPIO_PIN_4
+#define AUDIO_RST_GPIO_Port GPIOD
 #define LCD_D7_Pin GPIO_PIN_6
 #define LCD_D7_GPIO_Port GPIOD
 #define LCD_D6_Pin GPIO_PIN_3

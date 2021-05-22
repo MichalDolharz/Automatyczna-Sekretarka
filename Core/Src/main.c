@@ -118,6 +118,31 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 	}
 }
+
+//Odczyt stanu joysticka
+uint8_t Joystick_State() {
+
+	//Góra
+	if (Joystick[0] < 300) {
+		return 1;
+	}
+	//Dół
+	else if (Joystick[0] > 3700) {
+		return 2;
+	}
+	//Prawo
+	else if (Joystick[1] > 3700) {
+		return 3;
+	}
+	//Lewo
+	else if (Joystick[1] < 300) {
+		return 4;
+	}
+	//Neutralne
+	else {
+		return 0;
+	}
+}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -164,7 +189,7 @@ int main(void) {
 	MX_ADC1_Init();
 	/* USER CODE BEGIN 2 */
 
-	// LCD
+// LCD
 	Lcd_PortType ports[] = { LCD_D4_GPIO_Port, LCD_D5_GPIO_Port,
 	LCD_D6_GPIO_Port,
 	LCD_D7_GPIO_Port };
@@ -189,8 +214,8 @@ int main(void) {
 	//Info_UART("-----------------------------------------\r\n");
 	//Info_UART("Start programu\r\n");
 
-	// Inicjalizacja peryferiow potrzebnych do nagrywania dzwieku
-	//BSP_AUDIO_IN_Init(AUDIO_IN_FREQUENCY, AUDIO_RESOLUTION, NUMBER_OF_CHANNELS);
+// Inicjalizacja peryferiow potrzebnych do nagrywania dzwieku
+//BSP_AUDIO_IN_Init(AUDIO_IN_FREQUENCY, AUDIO_RESOLUTION, NUMBER_OF_CHANNELS);
 	/*if (BSP_AUDIO_IN_Init(DEFAULT_AUDIO_IN_FREQ,
 	 DEFAULT_AUDIO_IN_BIT_RESOLUTION,
 	 DEFAULT_AUDIO_IN_CHANNEL_NBR) != AUDIO_OK)
@@ -213,6 +238,53 @@ int main(void) {
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	while (1) {
+		//TEST JOYSTICKA
+		while (1) {
+			/*
+			 //Prawo
+			 if (Joystick[1] > 3700) {
+			 HAL_GPIO_WritePin(LED_Green_GPIO_Port, LED_Green_Pin, SET);
+			 }
+			 //Lewo
+			 else if (Joystick[1] < 300) {
+			 HAL_GPIO_WritePin(LED_Red_GPIO_Port, LED_Red_Pin, SET);
+			 } else {
+			 HAL_GPIO_WritePin(LED_Red_GPIO_Port, LED_Red_Pin, RESET);
+			 HAL_GPIO_WritePin(LED_Green_GPIO_Port, LED_Green_Pin, RESET);
+			 }
+			 //Dół
+			 if (Joystick[0] > 3700) {
+			 HAL_GPIO_WritePin(LED_Orange_GPIO_Port, LED_Orange_Pin, SET);
+			 }
+			 //Góra
+			 else if (Joystick[0] < 300) {
+			 HAL_GPIO_WritePin(LED_Blue_GPIO_Port, LED_Blue_Pin, SET);
+			 } else {
+			 HAL_GPIO_WritePin(LED_Blue_GPIO_Port, LED_Blue_Pin, RESET);
+			 HAL_GPIO_WritePin(LED_Orange_GPIO_Port, LED_Orange_Pin, RESET);
+			 }
+			 */
+			switch (Joystick_State()) {
+			case 1:
+				HAL_GPIO_WritePin(LED_Blue_GPIO_Port, LED_Blue_Pin, SET);
+				break;
+			case 2:
+				HAL_GPIO_WritePin(LED_Orange_GPIO_Port, LED_Orange_Pin, SET);
+				break;
+			case 3:
+				HAL_GPIO_WritePin(LED_Green_GPIO_Port, LED_Green_Pin, SET);
+				break;
+			case 4:
+				HAL_GPIO_WritePin(LED_Red_GPIO_Port, LED_Red_Pin, SET);
+				break;
+
+			default:
+				HAL_GPIO_WritePin(LED_Red_GPIO_Port, LED_Red_Pin, RESET);
+				HAL_GPIO_WritePin(LED_Green_GPIO_Port, LED_Green_Pin, RESET);
+				HAL_GPIO_WritePin(LED_Blue_GPIO_Port, LED_Blue_Pin, RESET);
+				HAL_GPIO_WritePin(LED_Orange_GPIO_Port, LED_Orange_Pin, RESET);
+			}
+		}
 		/* USER CODE END WHILE */
 		MX_USB_HOST_Process();
 
@@ -275,7 +347,6 @@ int main(void) {
 
 		}
 	}
-
 	/* USER CODE END 3 */
 }
 
@@ -355,14 +426,22 @@ static void MX_ADC1_Init(void) {
 	hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
 	hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
 	hadc1.Init.NbrOfConversion = 2;
+	<<<<<<< HEAD
 	hadc1.Init.DMAContinuousRequests = DISABLE;
+	=======
+	hadc1.Init.DMAContinuousRequests = ENABLE;
+	>>>>>>> ec617012971371e51f0d73446802bfa0a8f881c1
 	hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
 	if (HAL_ADC_Init(&hadc1) != HAL_OK) {
 		Error_Handler();
 	}
 	/** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
 	 */
+	<<<<<<< HEAD
 	sConfig.Channel = ADC_CHANNEL_5;
+	=======
+	sConfig.Channel = ADC_CHANNEL_7;
+	>>>>>>> ec617012971371e51f0d73446802bfa0a8f881c1
 	sConfig.Rank = 1;
 	sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
 	if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
@@ -571,20 +650,33 @@ static void MX_GPIO_Init(void) {
 	__HAL_RCC_GPIOD_CLK_ENABLE();
 
 	/*Configure GPIO pin Output Level */
+	<<<<<<< HEAD
 	HAL_GPIO_WritePin(GPIOC, LCD_E_Pin | LCD_RS_Pin | GPIO_PIN_0,
-			GPIO_PIN_RESET);
+			=======
+			HAL_GPIO_WritePin(GPIOC, LCD_E_Pin | LCD_RS_Pin | VBUS_Pin_Pin,
+					>>>>>>> ec617012971371e51f0d73446802bfa0a8f881c1
+					GPIO_PIN_RESET);
 
-	/*Configure GPIO pin Output Level */
-	HAL_GPIO_WritePin(GPIOD,
-			LED_Green_Pin | LED_Orange_Pin | LED_Red_Pin | LED_Blue_Pin
+			/*Configure GPIO pin Output Level */
+			HAL_GPIO_WritePin(GPIOD,
+					LED_Green_Pin | LED_Orange_Pin | LED_Red_Pin | LED_Blue_Pin
+					<<<<<<< HEAD
 					| GPIO_PIN_4 | LCD_D7_Pin, GPIO_PIN_RESET);
+			=======
+			| AUDIO_RST_Pin | LCD_D7_Pin, GPIO_PIN_RESET);
+	>>>>>>> ec617012971371e51f0d73446802bfa0a8f881c1
 
 	/*Configure GPIO pin Output Level */
 	HAL_GPIO_WritePin(GPIOB, LCD_D6_Pin | LCD_D5_Pin | LCD_D4_Pin,
 			GPIO_PIN_RESET);
 
+	<<<<<<< HEAD
 	/*Configure GPIO pins : LCD_E_Pin LCD_RS_Pin PC0 */
 	GPIO_InitStruct.Pin = LCD_E_Pin | LCD_RS_Pin | GPIO_PIN_0;
+	=======
+	/*Configure GPIO pins : LCD_E_Pin LCD_RS_Pin VBUS_Pin_Pin */
+	GPIO_InitStruct.Pin = LCD_E_Pin | LCD_RS_Pin | VBUS_Pin_Pin;
+	>>>>>>> ec617012971371e51f0d73446802bfa0a8f881c1
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -596,6 +688,7 @@ static void MX_GPIO_Init(void) {
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	HAL_GPIO_Init(Blue_Button_GPIO_Port, &GPIO_InitStruct);
 
+	<<<<<<< HEAD
 	/*Configure GPIO pin : PA1 */
 	GPIO_InitStruct.Pin = GPIO_PIN_1;
 	GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
@@ -606,6 +699,18 @@ static void MX_GPIO_Init(void) {
 	 PD4 LCD_D7_Pin */
 	GPIO_InitStruct.Pin = LED_Green_Pin | LED_Orange_Pin | LED_Red_Pin
 			| LED_Blue_Pin | GPIO_PIN_4 | LCD_D7_Pin;
+	=======
+	/*Configure GPIO pin : Joystick_Button_Pin */
+	GPIO_InitStruct.Pin = Joystick_Button_Pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+	GPIO_InitStruct.Pull = GPIO_PULLUP;
+	HAL_GPIO_Init(Joystick_Button_GPIO_Port, &GPIO_InitStruct);
+
+	/*Configure GPIO pins : LED_Green_Pin LED_Orange_Pin LED_Red_Pin LED_Blue_Pin
+	 AUDIO_RST_Pin LCD_D7_Pin */
+	GPIO_InitStruct.Pin = LED_Green_Pin | LED_Orange_Pin | LED_Red_Pin
+			| LED_Blue_Pin | AUDIO_RST_Pin | LCD_D7_Pin;
+	>>>>>>> ec617012971371e51f0d73446802bfa0a8f881c1
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
