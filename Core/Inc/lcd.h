@@ -13,8 +13,8 @@
 #include "stdio.h"
 #include "main.h"
 
-// #define LCD20xN 		// For 20xN LCDs
-#define LCD16xN			// For 16xN LCDs
+#define LCD20xN 		// For 20xN LCDs
+//#define LCD16xN			// For 16xN LCDs
 
 // For row start addresses
 extern const uint8_t ROW_16[];

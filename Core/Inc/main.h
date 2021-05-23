@@ -64,9 +64,9 @@ void Error_Handler(void);
 #define LCD_RS_GPIO_Port GPIOC
 #define VBUS_Pin_Pin GPIO_PIN_0
 #define VBUS_Pin_GPIO_Port GPIOC
-#define Blue_Button_Pin GPIO_PIN_0
-#define Blue_Button_GPIO_Port GPIOA
-#define Blue_Button_EXTI_IRQn EXTI0_IRQn
+#define REC_Button_Pin GPIO_PIN_0
+#define REC_Button_GPIO_Port GPIOA
+#define REC_Button_EXTI_IRQn EXTI0_IRQn
 #define Joystick_Button_Pin GPIO_PIN_1
 #define Joystick_Button_GPIO_Port GPIOA
 #define Joystick_Button_EXTI_IRQn EXTI1_IRQn
