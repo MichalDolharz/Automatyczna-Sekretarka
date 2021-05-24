@@ -1,5 +1,54 @@
 #include "lcd_menu.h"
 
+void menuClicked(int menuNum) {
+
+	switch (menuNum) {
+	case 0: // wiadomosci
+		break;
+
+	case 1: // zachowane
+		break;
+	case 2: // ustawienia
+		break;
+	case 3: // informacje
+		handleInformationMenu();
+		break;
+	case 4: // zakoncz
+		break;
+	}
+
+	clearLCD();
+	setCursor(0, 0);
+}
+
+void handleInformationMenu() {
+	char *info[] = { "Powrot", "Data wydania:", " - 03.06.2021", "Autorzy:",
+			" - Dawid Jarzabek", " - Michal Dolharz" };
+
+	int menuUpDown = 0;
+
+	int joystickState = 0;
+	int joystickButtonState = 0;
+	int *menuStartingPoint = 0;
+
+	setCursor(0, 0);
+	printMenu(info, sizeof(info) / sizeof(info[0]), 0);
+
+	// Petla trwa dopoki nie wybierze sie opcji "Powrot"
+	while (!(menuUpDown == 0 && joystickButtonState == 1)) {
+
+		joystickState = Joystick_State(); // poruszenie joystickiem
+		joystickButtonState = (!HAL_GPIO_ReadPin(Joystick_Button_GPIO_Port,
+		Joystick_Button_Pin)); // wcisniecie joysticka
+
+		// Jezeli poruszono joystickiem w dol lub w gore, to aktualizuje menu
+		if (joystickState == 1 || joystickState == 2) {
+			updateMenu(&info, sizeof(info) / sizeof(info[0]), &menuUpDown,
+					&menuStartingPoint, joystickState);
+		}
+	}
+}
+
 void updateMenu(char *menu[], int menuLen, int *menuUpDown,
 		int *menuStartingPoint, int joystickState) {
 

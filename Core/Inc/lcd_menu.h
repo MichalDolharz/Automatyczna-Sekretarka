@@ -4,8 +4,8 @@
 #include "lcd.h"
 
 #define CHOICE 0xA5 //0x7E //
+#define NO_CHOICE 0x2D
 #define ROWS 4
-#define MAIN_MENU_LEN sizeof(mainMenu) / sizeof(mainMenu[0])
 
 extern Lcd_HandleTypeDef lcd;
 extern int debug;
@@ -19,5 +19,7 @@ void clearLCD();
 
 void updateMenu(char *menu[], int menuLen, int *menuUpDown,
 		int *menuStartingPoint, int joystickState);
+void menuClicked(int menuNum);
+void handleInformationMenu();
 
 #endif /* INC_LCD_MENU_H_ */

@@ -41,6 +41,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define MAIN_MENU_LEN sizeof(mainMenu) / sizeof(mainMenu[0])
+#define INFO_LEN sizeof(info) / sizeof(info[0])
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -91,8 +93,9 @@ PLAY_State_e playingStatus = PLAY_Idle;
 
 // LCD
 Lcd_HandleTypeDef lcd;
-char *mainMenu[] = { "Wiadomosci", "Zachowane", "Ustawienia", "Zakoncz",
-		"OpcjaTMP1", "OpcjaTMP2", "OpcjaTMP3", "OpcjaTMP4" };
+
+char *mainMenu[] = { "Wiadomosci", "Zachowane", "Ustawienia", "Informacje",
+		"Zakoncz", "OpcjaTMP1", "OpcjaTMP2", "OpcjaTMP3", "OpcjaTMP4" };
 
 /* USER CODE END PV */
 
@@ -308,22 +311,19 @@ int main(void) {
 		// Jezeli wcisnieto przycisk
 		if (joystickButtonState) {
 			menuSet = mainMenuUpDown;
-			if (debug == 1) {
-				setCursor(3, 0);
-				printText("Wcisniety ");
-				setCursor(1, 0);
-				printText("Wybrane menu:   ");
-				setCursor(1, 16);
-				printNum(menuSet);
-			}
+
 			while (joystickButtonState != 0) { // zapobiega ciaglemu przebiegowi while(1)
 				joystickButtonState = !HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1);
 			}
-		} else {
-			if (debug == 1) {
-				setCursor(3, 0);
-				printText("Puszczony   ");
-			}
+
+			clearLCD();
+			// akcja
+			menuClicked(mainMenuUpDown);
+
+			// reset:
+			printMenu(mainMenu, MAIN_MENU_LEN, 0); // wyswietlenie glownego menu
+			menuStartingPoint = 0; // zresetowanie punktu startowego
+			mainMenuUpDown = 0; // zresetowanie aktualnie wybranej opcji
 		}
 
 	}
