@@ -271,10 +271,7 @@ void handleInformationMenu() {
 
 	setCursor(0, 0);
 	printMenu(info, sizeof(info) / sizeof(info[0]), 0);
-	setCursor(1, 0);
-	for (int i = 0; i <= 9; i++) {
-		printNum(recordStatus[i]);
-	}
+
 // Petla trwa dopoki nie wybierze sie opcji "Powrot"
 	while (!(menuUpDown == 0 && joystickButtonState == 1)) {
 
