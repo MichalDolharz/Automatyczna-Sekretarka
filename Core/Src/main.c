@@ -19,16 +19,12 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "fatfs.h"
+//#include "fatfs.h"
 #include "pdm2pcm.h"
-#include "usb_host.h"
+//#include "usb_host.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "stm32f411e_discovery_audio.h"
-#include "wav_recorder.h"
-#include "CS43L22_config.h"
-#include "wav_player.h"
 #include "lcd.h"
 #include "lcd_menu.h"
 #include "joystick.h"
@@ -67,7 +63,7 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 __IO uint8_t recFlag = 0; // flaga nagrywania
-uint8_t recordsCounter = 0; // licznik nagran
+uint8_t recordsCounter; // licznik nagran
 
 // Pliki FATFS
 extern FATFS USBHFatFS;
@@ -94,8 +90,12 @@ PLAY_State_e playingStatus = PLAY_Idle;
 // LCD
 Lcd_HandleTypeDef lcd;
 
-char *mainMenu[] = { "Wiadomosci", "Zachowane", "Ustawienia", "Informacje",
-		"Zakoncz", "OpcjaTMP1", "OpcjaTMP2", "OpcjaTMP3", "OpcjaTMP4" };
+char *mainMenu[] = { "Nagraj", "Wiadomosci", "Zachowane", "Ustawienia",
+		"Informacje" };
+
+// Tablica przechowuje informacje czy nagranie jest w pamieciu (1) lub czy takie nagranie nie istnieje (0)
+// Uzupelniania przez funkcje checkFiles()
+//extern int recordsss[10];
 
 /* USER CODE END PV */
 
@@ -223,12 +223,11 @@ int main(void) {
 	int mainMenuUpDown = 0;
 
 	// Przechowuje aktualna pozycje w menu w poziomie
-	int mainMenuLeftRight = 0;
+	//int mainMenuLeftRight = 0;
 
 	// Przechowuje indeks pierwszej opcji aktualnie wyswietlanej w menu
 	int menuStartingPoint = 0;
-	int menuSet = 0;
-	int light = 0;
+	//int menuSet = 0;
 	bool isSdCardMounted = 0;
 
 	// poczatkowe wyswietlenie menu
@@ -294,7 +293,7 @@ int main(void) {
 
 		 //TEST JOYSTICKA
 		 while (1) {*/
-		//if (light == 1) {
+
 		/* USER CODE END WHILE */
 		MX_USB_HOST_Process();
 
@@ -311,6 +310,7 @@ int main(void) {
 			if (!isSdCardMounted) {
 				f_mount(&USBHFatFS, (const TCHAR*) USBHPath, 0);
 				isSdCardMounted = 1;
+				checkFiles();
 			}
 
 			joystickState = Joystick_State(); // poruszenie joystickiem
@@ -329,7 +329,7 @@ int main(void) {
 
 			// Jezeli wcisnieto przycisk
 			if (joystickButtonState) {
-				menuSet = mainMenuUpDown;
+				//menuSet = mainMenuUpDown;
 
 				while (joystickButtonState != 0) { // zapobiega ciaglemu przebiegowi while(1)
 					joystickButtonState = !HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1);
@@ -344,27 +344,6 @@ int main(void) {
 				menuStartingPoint = 0; // zresetowanie punktu startowego
 				mainMenuUpDown = 0; // zresetowanie aktualnie wybranej opcji
 			}
-			/*} else {
-			 joystickState = Joystick_State(); // poruszenie joystickiem
-			 joystickButtonState = (!HAL_GPIO_ReadPin(Joystick_Button_GPIO_Port,
-			 Joystick_Button_Pin)); // wcisniecie joysticka
-
-			 if (joystickState != 0 || joystickButtonState == 1) {
-			 light = 1;
-			 setLight(1);
-			 setCursor(0, 0);
-			 printMenu(mainMenu, MAIN_MENU_LEN, 0);
-
-			 while (joystickButtonState == 1) { // zapobiega ciaglemu przebiegowi while(1)
-			 joystickButtonState = !HAL_GPIO_ReadPin(GPIOA,
-			 GPIO_PIN_1);
-			 }
-			 while (joystickState != 0) { // zapobiega ciaglemu przebiegowi while(1)
-			 joystickState = Joystick_State(); // poruszenie joystickiem
-			 }
-			 }
-
-			 }*/
 
 			/*if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)) {
 			 HAL_Delay(1000);

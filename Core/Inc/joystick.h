@@ -3,7 +3,7 @@
 
 #include "stm32f4xx_hal.h"
 #include "main.h"
-#include "lcd_menu.h"
+//#include "lcd_menu.h"
 
 extern uint16_t Joystick[2];
 

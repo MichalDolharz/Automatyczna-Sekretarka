@@ -3,23 +3,74 @@
 void menuClicked(int menuNum) {
 
 	switch (menuNum) {
-	case 0: // wiadomosci
+	case 0:
+		handleRecording();
+		break;
+	case 1: // wiadomosci
 		handleRecordsMenu();
 		break;
-	case 1: // zachowane
+	case 2: // zachowane
 		handleSavedMenu();
 		break;
-	case 2: // ustawienia
+	case 3: // ustawienia
 		break;
-	case 3: // informacje
+	case 4: // informacje
 		handleInformationMenu();
-		break;
-	case 4: // zakoncz
 		break;
 	}
 
 	clearLCD();
 	setCursor(0, 0);
+}
+void handleRecording() {
+
+	int recordNum = -1;
+
+	// Szukanie wolnego miejsca
+	for (int i = 0; i <= 9; i++) {
+		if (recordStatus[i] == 0) {
+			recordNum = i;
+			recordStatus[i] = 1;
+			break;
+		}
+	}
+
+	// Informacja o braku miejsca i koniec funkcji (bez nagrania)
+	if (recordNum == -1) {
+		setCursor(1, 4);
+		printText("Brak miejsca.");
+		HAL_Delay(3000);
+		HAL_GPIO_WritePin(LED_Blue_GPIO_Port, LED_Blue_Pin, RESET);
+		return;
+	} else {
+		setCursor(1, 4);
+		printText("Nagrywanie...");
+	}
+
+	BSP_AUDIO_IN_Init(DEFAULT_AUDIO_IN_FREQ, DEFAULT_AUDIO_IN_BIT_RESOLUTION,
+	DEFAULT_AUDIO_IN_CHANNEL_NBR);
+
+	// Czerwona dioda LED wlaczona
+	HAL_GPIO_WritePin(LED_Red_GPIO_Port, LED_Red_Pin, SET);
+
+	// Nagrywanie
+	WavRecordingProcess(recordNum);
+
+	// Koniec nagrywania
+	StopRecording();
+
+	// Czerwona dioda LED wylaczona
+	HAL_GPIO_WritePin(LED_Red_GPIO_Port, LED_Red_Pin, RESET);
+	//if (++recordsCounter >= MAX_RECORDS) // maksymalnie 10 nagran, REC0 - REC9
+	//	recordsCounter = 0;
+	clearLCD();
+	setCursor(0, 5);
+	printText("Zapisano!");
+	setCursor(1, 2);
+	printText("Numer nagrania:");
+	setCursor(2, 9);
+	printNum(recordNum);
+	HAL_Delay(3000);
 }
 
 void handleRecordClicked(int menuNum, char *record) {
@@ -46,6 +97,7 @@ void handlePlay(char *record) {
 	HAL_Delay(2000);
 }
 
+//
 void handleSave(char *record) {
 	setCursor(1, 4);
 	printText("Zapisuje");
@@ -53,18 +105,26 @@ void handleSave(char *record) {
 }
 
 void handleRemove(char *record) {
-	setCursor(1, 4);
-	printText("Usuwam");
-	HAL_Delay(2000);
+	char path[] = "/REC/RECn.wav";
+	int num = record[9] - '0';
+	sprintf(path, "/REC/REC%d.wav", num);
+	f_unlink(record);
+	recordStatus[num] = 0;
+	setCursor(1, 5);
+	printText("Usunieto:");
+	setCursor(2, 4);
+	printText("Nagranie ");
+	printNum(num);
+	HAL_Delay(3000);
 }
 
 void handleRecordsMenuClicked(int menuNum, char *record) {
 
 	char *info[] = { "Powrot", record, " - Odtworz", " - Zachowaj", " - Usun" };
 
-	//char tmp;
-	//sprintf(tmp, "Powrot | rec: %s", record);
-	//info[0] = tmp;
+//char tmp;
+//sprintf(tmp, "Powrot | rec: %s", record);
+//info[0] = tmp;
 
 	int menuUpDown = 0;
 
@@ -75,7 +135,7 @@ void handleRecordsMenuClicked(int menuNum, char *record) {
 	setCursor(0, 0);
 	printMenu(info, sizeof(info) / sizeof(info[0]), 0);
 
-	// Petla trwa dopoki nie wybierze sie opcji "Powrot"
+// Petla trwa dopoki nie wybierze sie opcji "Powrot"
 	while (!(menuUpDown == 0 && joystickButtonState == 1)) {
 
 		// Jezeli poruszono joystickiem w dol lub w gore, to aktualizuje menu
@@ -109,9 +169,20 @@ void handleRecordsMenuClicked(int menuNum, char *record) {
 }
 
 void handleRecordsMenu() {
-	char *info[] = { "Powrot", "wolne miejsce", "wolne miejsce",
-			"wolne miejsce", "wolne miejsce", "wolne miejsce", "wolne miejsce",
-			"wolne miejsce", "wolne miejsce", "wolne miejsce", "wolne miejsce" };
+	char *info[11]; // = { "Powrot", "wolne miejsce", "wolne miejsce", "wolne miejsce", "wolne miejsce", "wolne miejsce", "wolne miejsce", "wolne miejsce", "wolne miejsce", "wolne miejsce", "wolne miejsce"};
+	char tmp[11][20];
+
+	strcpy(tmp[0], "Powrot");
+	info[0] = tmp[0];
+
+	for (int i = 0; i <= 9; i++) {
+		if (recordStatus[i] == 1) {
+			sprintf(tmp[i + 1], "Nagranie %d", i);
+		} else {
+			sprintf(tmp[i + 1], "Wolne miejsce");
+		}
+		info[i + 1] = tmp[i + 1];
+	}
 
 	int menuUpDown = 0;
 
@@ -119,41 +190,10 @@ void handleRecordsMenu() {
 	int joystickButtonState = 0;
 	int *menuStartingPoint = 0;
 
-	// Przeszukiwanie folderu
-	FRESULT fresult;
-	DIR dir;
-	FILINFO filinfo;
-	char *path = "/REC";
-
-	fresult = f_opendir(&dir, path);
-	if (fresult != FR_OK) {
-		return;
-	}
-
-	// tablica do zapisania danych w petli for
-	char tmp[10][20] = { "wolne miejsce", "wolne miejsce", "wolne miejsce",
-			"wolne miejsce", "wolne miejsce", "wolne miejsce", "wolne miejsce",
-			"wolne miejsce", "wolne miejsce", "wolne miejsce" };
-
-	// maksymalnie moze byc 10 nagran
-	for (int i = 0; i <= 9; i++) {
-
-		fresult = f_readdir(&dir, &filinfo);
-		if (fresult != FR_OK || filinfo.fname[0] != 'R') { // musza zaczynac sie od litery R (REC)
-			break;
-		}
-
-		strcpy(tmp[i], filinfo.fname); // przekopiowanie nazwy pliku
-		info[i + 1] = tmp[i];          // ustawienie wskaźnika
-	}
-
-	f_closedir(&dir);
-	// koniec przeszukiwania folderu
-
 	setCursor(0, 0);
 	printMenu(info, sizeof(info) / sizeof(info[0]), 0);
 
-	// Petla trwa dopoki nie wybierze sie opcji "Powrot"
+// Petla trwa dopoki nie wybierze sie opcji "Powrot"
 	while (!(menuUpDown == 0 && joystickButtonState == 1)) {
 
 		// Jezeli poruszono joystickiem w dol lub w gore, to aktualizuje menu
@@ -171,15 +211,15 @@ void handleRecordsMenu() {
 			}
 
 			// brak reakcji na opcję "wolne miejsce"
-			if (info[menuUpDown] != "wolne miejsce") {
+			if (info[menuUpDown][0] != 'W') {
 				clearLCD();
 				// akcja
 				handleRecordsMenuClicked(menuUpDown, info[menuUpDown]);
 
 				// reset:
 				handleRecordsMenu();
-				menuStartingPoint = 0;         // zresetowanie punktu startowego
-				menuUpDown = 0;         // zresetowanie aktualnie wybranej opcji
+				menuStartingPoint = 0; // zresetowanie punktu startowego
+				menuUpDown = 0; // zresetowanie aktualnie wybranej opcji
 			}
 		}
 
@@ -204,7 +244,7 @@ void handleSavedMenu() {
 	setCursor(0, 0);
 	printMenu(info, sizeof(info) / sizeof(info[0]), 0);
 
-	// Petla trwa dopoki nie wybierze sie opcji "Powrot"
+// Petla trwa dopoki nie wybierze sie opcji "Powrot"
 	while (!(menuUpDown == 0 && joystickButtonState == 1)) {
 
 		joystickState = Joystick_State(); // poruszenie joystickiem
@@ -231,8 +271,11 @@ void handleInformationMenu() {
 
 	setCursor(0, 0);
 	printMenu(info, sizeof(info) / sizeof(info[0]), 0);
-
-	// Petla trwa dopoki nie wybierze sie opcji "Powrot"
+	setCursor(1, 0);
+	for (int i = 0; i <= 9; i++) {
+		printNum(recordStatus[i]);
+	}
+// Petla trwa dopoki nie wybierze sie opcji "Powrot"
 	while (!(menuUpDown == 0 && joystickButtonState == 1)) {
 
 		joystickState = Joystick_State(); // poruszenie joystickiem
@@ -247,13 +290,50 @@ void handleInformationMenu() {
 	}
 }
 
+void checkFiles() {
+// Przeszukiwanie folderu
+	FRESULT fresult;
+	DIR dir;
+	FILINFO filinfo;
+	char *path = "/REC";
+	int num;
+	int licznik = 0;
+
+// Otworzenie katalogu
+	fresult = f_opendir(&dir, path);
+	if (fresult != FR_OK) {
+		return;
+	}
+
+// Zapełnienie zerami
+	for (int i = 0; i <= 9; i++) {
+		recordStatus[i] = 0;
+	}
+
+// maksymalnie moze byc 10 nagran
+	for (int i = 0; i <= 9; i++) {
+
+		fresult = f_readdir(&dir, &filinfo);
+		if (fresult != FR_OK || filinfo.fname[0] != 'R') { // musza zaczynac sie od litery R (REC)
+			break;
+		}
+
+		num = filinfo.fname[3] - '0'; // konwersja char do int
+		recordStatus[num] = 1; // oznaczenie, ze nagranie numer num istnieje
+
+	}
+
+	f_closedir(&dir);
+// koniec przeszukiwania folderu
+}
+
 void updateMenu(char *menu[], int menuLen, int *menuUpDown,
 		int *menuStartingPoint, int joystickState) {
 
 	int position = 0;
-	//int info = 0;
+//int info = 0;
 
-	// Tylko zmiana opcji w pionie
+// Tylko zmiana opcji w pionie
 	switch (joystickState) {
 	case 1: // gora
 		if (*menuUpDown != menuLen - 1) {
@@ -284,7 +364,7 @@ void updateMenu(char *menu[], int menuLen, int *menuUpDown,
 	 * - przesuniecie samego wskaznika bez przesuwania menu
 	 */
 
-	// Przesuniecie menu w dol
+// Przesuniecie menu w dol
 	if (*menuUpDown < *menuStartingPoint) {
 		clearLCD();              // czysci lcd
 		*menuStartingPoint -= 1; // menu zostaje przesuniete
@@ -301,7 +381,7 @@ void updateMenu(char *menu[], int menuLen, int *menuUpDown,
 		printChar(CHOICE);
 		//info = 1;
 	}
-	// Przesuniecie menu w gore
+// Przesuniecie menu w gore
 	else if (*menuUpDown > *menuStartingPoint + 3) {
 		clearLCD();              // czysci lcd
 		*menuStartingPoint += 1; // menu zostaje przesuniete
@@ -318,7 +398,7 @@ void updateMenu(char *menu[], int menuLen, int *menuUpDown,
 		printChar(CHOICE);
 		//info = 2;
 	}
-	// Przesuniecie wskaznika opcji
+// Przesuniecie wskaznika opcji
 	else {
 		position = *menuUpDown - *menuStartingPoint; // nowa pozycja wskaznika opcji
 
@@ -328,17 +408,10 @@ void updateMenu(char *menu[], int menuLen, int *menuUpDown,
 		//info = 3;
 	}
 
-	// Oczekiwanie na wypuszczenie joysticka do pozycji 0
+// Oczekiwanie na wypuszczenie joysticka do pozycji 0
 	while (joystickState != 0) {
 		joystickState = Joystick_State();
 	}
-}
-
-void setLight(int OnOff) {
-	if (OnOff == 1)
-		HAL_GPIO_WritePin(LCD_Light_GPIO_Port, LCD_Light_Pin, SET);
-	else if (OnOff == 0)
-		HAL_GPIO_WritePin(LCD_Light_GPIO_Port, LCD_Light_Pin, RESET);
 }
 
 void printMenu(char *menu[], int menuLen, int startingPoint) {

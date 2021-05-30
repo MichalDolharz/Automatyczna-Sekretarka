@@ -6,6 +6,10 @@
 #include "main.h"
 #include "usb_host.h"
 #include "fatfs.h"
+#include "stm32f411e_discovery_audio.h"
+#include "wav_recorder.h"
+#include "CS43L22_config.h"
+#include "wav_player.h"
 
 #define CHOICE 0xA5 //0x7E //
 #define NO_CHOICE 0x2D
@@ -13,6 +17,10 @@
 
 extern Lcd_HandleTypeDef lcd;
 extern int debug;
+extern uint8_t recordsCounter;
+
+int recordStatus[10];
+;
 
 void printMenu(char *menu[], int menuLen, int startingPoint);
 void printText(char *string);
@@ -23,7 +31,9 @@ void clearLCD();
 
 void updateMenu(char *menu[], int menuLen, int *menuUpDown,
 		int *menuStartingPoint, int joystickState);
+void checkFiles();
 void menuClicked(int menuNum);
+void handleRecording();
 void handleInformationMenu();
 void handleRecordsMenu();
 void handleSavedMenu();

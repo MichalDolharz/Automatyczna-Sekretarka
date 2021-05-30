@@ -23,6 +23,9 @@ __IO uint8_t dataReady = 0;         // flaga gotowosci danych do zapisu do pliku
 __IO uint32_t bufferOffset = 0;              		// offset buffora nagrywania
 __IO uint32_t counter = 0;                   		// licznik danych
 __IO FRESULT fresult;      // zmienna do kontroli niektorych funkcji obslugi USB
+//DIR dir;
+//FILINFO filinfo;
+//char *path = "/REC";
 
 // Zewnetrzne zmienne
 extern __IO uint32_t recordingTime; // biezacy czas nagrywania (odliczanie w stm32f4xx_it.h)
@@ -54,18 +57,19 @@ void WavRecordingProcess(uint8_t recordNumber) {
 
 	// Zamontowanie zew. pamieci USB
 	/*if (f_mount(&USBHFatFS, USBHPath, 1) != FR_OK) {
-		Info_UART("NIE ZAMONTOWANO POPRAWNIE USB (main.c)\r\n");
-	} else {
-		Info_UART("Zamontowano USB\r\n");
-	}
-*/
+	 Info_UART("NIE ZAMONTOWANO POPRAWNIE USB (main.c)\r\n");
+	 } else {
+	 Info_UART("Zamontowano USB\r\n");
+	 }
+	 */
 	// Ustalenie nazwy pliku
-	char filename[] = "RECn.wav";
-	sprintf(filename, "REC%d.wav", recordNumber);
+	char filename[] = "/REC/RECn.wav";
+	sprintf(filename, "/REC/REC%d.wav", recordNumber);
 	Info_UART("Nazwa pliku: ");
 	Info_UART(filename);
 	Info_UART("\r\n");
 
+	//f_opendir(&dir, path);
 	// Jezeli plik istnieje, zostanie nadpisany
 	f_unlink(filename);
 
@@ -161,12 +165,14 @@ void WavRecordingProcess(uint8_t recordNumber) {
 	else
 		Info_UART("Plik zamkniety\r\n");
 
+	//f_closedir(&dir);
+
 	// Odmontowanie pamieci USB
 	/*if (f_mount(NULL, USBHPath, 1) != FR_OK)
-		Info_UART("NIE UDALO SIE ODMONTOWANIE USB (wav_recorder.c)\r\n");
-	else
-		Info_UART("Odmontowano USB\r\n\r\n");
-		*/
+	 Info_UART("NIE UDALO SIE ODMONTOWANIE USB (wav_recorder.c)\r\n");
+	 else
+	 Info_UART("Odmontowano USB\r\n\r\n");
+	 */
 }
 
 //static uint32_t WavFileHeaderInit(uint32_t *header)
