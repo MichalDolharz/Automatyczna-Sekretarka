@@ -13,6 +13,7 @@
 #include "main.h"
 #include "usb_host.h"
 #include "fatfs.h"
+#include "joystick.h"
 
 #define MAX_RECORDING_TIME 30000 // maksymalny czas nagrania (ms)
 #define RECBUFFER_SIZE 4096 // rozmiar bufora dla half-word

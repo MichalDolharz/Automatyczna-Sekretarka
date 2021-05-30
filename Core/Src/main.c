@@ -62,25 +62,21 @@ DMA_HandleTypeDef hdma_spi3_tx;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-__IO uint8_t recFlag = 0; // flaga nagrywania
-uint8_t recordsCounter; // licznik nagran
 
 // Pliki FATFS
 extern FATFS USBHFatFS;
 extern char USBHPath[4];
 
-extern ApplicationTypeDef Appli_state; // status USB
+// status USB
+extern ApplicationTypeDef Appli_state;
 
-__IO uint32_t recordingStatus = STATUS_RECORDING_INACTIVE; // status nagrywania
+// status nagrywania
+__IO uint32_t recordingStatus = STATUS_RECORDING_INACTIVE;
 
-#define WAV_FILE1 "REC0.wav"
-
+// Wartosci joysticka
 uint16_t Joystick[2];
 
-// jak 1, to beda wyswietlane rozne informacje, ktore beda nadpisywaly wyswietlane menu. Potem sie to usunie
-int debug = 0;
-
-/*
+/* Status odtwarzania
  PLAY_Idle,
  PLAY_Pause,
  PLAY_Resume,
@@ -90,12 +86,9 @@ PLAY_State_e playingStatus = PLAY_Idle;
 // LCD
 Lcd_HandleTypeDef lcd;
 
+// Zakladki menu glownego
 char *mainMenu[] = { "Nagraj", "Wiadomosci", "Zachowane", "Ustawienia",
 		"Informacje" };
-
-// Tablica przechowuje informacje czy nagranie jest w pamieciu (1) lub czy takie nagranie nie istnieje (0)
-// Uzupelniania przez funkcje checkFiles()
-//extern int recordsss[10];
 
 /* USER CODE END PV */
 
@@ -125,19 +118,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			playingStatus = PLAY_Pause;
 		} else if (playingStatus == PLAY_Pause) {
 			playingStatus = PLAY_Resume;
-		} else {
-			// Zatrzymanie nagrywania gdy jest wlaczone
-			if (recordingStatus == STATUS_RECORDING_ACTIVE) {
-				recordingStatus = STATUS_RECORDING_INACTIVE;
-
-			}
-			// Wlaczenie nagrywania gdy jest wylaczone
-			else {
-				recordingStatus = STATUS_RECORDING_ACTIVE;
-			}
-
 		}
-
 	}
 }
 
@@ -187,7 +168,7 @@ int main(void) {
 	MX_ADC1_Init();
 	/* USER CODE BEGIN 2 */
 
-// LCD
+	// LCD
 	Lcd_PortType ports[] = { LCD_D4_GPIO_Port, LCD_D5_GPIO_Port,
 	LCD_D6_GPIO_Port,
 	LCD_D7_GPIO_Port };
@@ -197,208 +178,98 @@ int main(void) {
 	lcd = Lcd_create(ports, pins, LCD_RS_GPIO_Port, LCD_RS_Pin, LCD_E_GPIO_Port,
 	LCD_E_Pin, LCD_4_BIT_MODE);
 
-	// nie dziala nowy znak
-	//uint8_t newChar[] = { 0x0, 0x0, 0xE, 0xE, 0xE, 0x0, 0x0, 0x0 };
-	//Lcd_define_char(&lcd, 0x00, newChar);
-
-	// Inicjalizacja peryferiow potrzebnych do nagrywania dzwieku
-	//BSP_AUDIO_IN_Init(AUDIO_IN_FREQUENCY, AUDIO_RESOLUTION, NUMBER_OF_CHANNELS);
-	/*if (BSP_AUDIO_IN_Init(DEFAULT_AUDIO_IN_FREQ,
-	 DEFAULT_AUDIO_IN_BIT_RESOLUTION,
-	 DEFAULT_AUDIO_IN_CHANNEL_NBR) != AUDIO_OK)
-	 Info_UART(
-	 "NIE UDALO SIE ZAINICJALIZAOWAC AUDIO_IN\ (wav_recorder.c)\r\n");
-	 else
-	 Info_UART("Zainicjalizowano AUDIO_IN \r\n");
-	 */
 	HAL_ADC_Start_DMA(&hadc1, Joystick, 2);
 	CS43L22_Init(hi2c1);
 	CS43L22_SetVolume(180); //0-255
 
 	audioI2S_setHandle(&hi2s3);
+
+	// Status joysticka. Ustawiany na podstawie przetworzonych pomiarow.
 	int joystickState = 0;
+
+	// Status przycisku joysticka. 1 - wcisniety, 0 - puszczony.
 	int joystickButtonState = 0;
 
-	// Przechowuje aktualna pozycje w menu w pionie
+	// Przechowuje aktualna pozycje w menu w pionie.
 	int mainMenuUpDown = 0;
 
-	// Przechowuje aktualna pozycje w menu w poziomie
+	// Przechowuje aktualna pozycje w menu w poziomie.
 	//int mainMenuLeftRight = 0;
 
-	// Przechowuje indeks pierwszej opcji aktualnie wyswietlanej w menu
+	// Przechowuje indeks pierwszej opcji aktualnie wyswietlanej w menu.
 	int menuStartingPoint = 0;
-	//int menuSet = 0;
+
 	bool isSdCardMounted = 0;
 
 	// poczatkowe wyswietlenie menu
 	setCursor(0, 0);
 	printMenu(mainMenu, MAIN_MENU_LEN, 0);
-	//bool pauseResumeToggle = 0;
-	//setLight(0);
+
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	while (1) {
 
-		/*
-		 //TEST JOYSTICKA
-		 while (1) {
-
-		 //Prawo
-		 if (Joystick[1] > 3700) {
-		 HAL_GPIO_WritePin(LED_Green_GPIO_Port, LED_Green_Pin, SET);
-		 }
-		 //Lewo
-		 else if (Joystick[1] < 300) {
-		 HAL_GPIO_WritePin(LED_Red_GPIO_Port, LED_Red_Pin, SET);
-		 } else {
-		 HAL_GPIO_WritePin(LED_Red_GPIO_Port, LED_Red_Pin, RESET);
-		 HAL_GPIO_WritePin(LED_Green_GPIO_Port, LED_Green_Pin, RESET);
-		 }
-		 //Dół
-		 if (Joystick[0] > 3700) {
-		 HAL_GPIO_WritePin(LED_Orange_GPIO_Port, LED_Orange_Pin, SET);
-		 }
-		 //Góra
-		 else if (Joystick[0] < 300) {
-		 HAL_GPIO_WritePin(LED_Blue_GPIO_Port, LED_Blue_Pin, SET);
-		 } else {
-		 HAL_GPIO_WritePin(LED_Blue_GPIO_Port, LED_Blue_Pin, RESET);
-		 HAL_GPIO_WritePin(LED_Orange_GPIO_Port, LED_Orange_Pin, RESET);
-		 }
-
-		 switch (Joystick_State()) {
-		 case 1:
-		 HAL_GPIO_WritePin(LED_Blue_GPIO_Port, LED_Blue_Pin, SET);
-		 break;
-		 case 2:
-		 HAL_GPIO_WritePin(LED_Orange_GPIO_Port, LED_Orange_Pin, SET);
-		 break;
-		 case 3:
-		 HAL_GPIO_WritePin(LED_Green_GPIO_Port, LED_Green_Pin, SET);
-		 break;
-		 case 4:
-		 HAL_GPIO_WritePin(LED_Red_GPIO_Port, LED_Red_Pin, SET);
-		 break;
-
-		 default:
-		 HAL_GPIO_WritePin(LED_Red_GPIO_Port, LED_Red_Pin, RESET);
-		 HAL_GPIO_WritePin(LED_Green_GPIO_Port, LED_Green_Pin, RESET);
-		 HAL_GPIO_WritePin(LED_Blue_GPIO_Port, LED_Blue_Pin, RESET);
-		 HAL_GPIO_WritePin(LED_Orange_GPIO_Port, LED_Orange_Pin, RESET);
-		 }
-		 }
-
-
-		 //TEST JOYSTICKA
-		 while (1) {*/
-
 		/* USER CODE END WHILE */
 		MX_USB_HOST_Process();
 
 		/* USER CODE BEGIN 3 */
+
+		// Sprawdza czy podlaczono pamiec USB
 		if (Appli_state == APPLICATION_START) {
 			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
-		} else if (Appli_state == APPLICATION_DISCONNECT) {
+		}
+		// Sprawdza czy rozlaczono pamiec USB
+		else if (Appli_state == APPLICATION_DISCONNECT) {
 			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_RESET);
 			f_mount(NULL, (TCHAR const*) "", 0);
 			isSdCardMounted = 0;
 		}
 
+		// Sprawdza czy pamiec USB jest przygotowana
 		if (Appli_state == APPLICATION_READY) {
+
+			// montuje pamiec USB
 			if (!isSdCardMounted) {
 				f_mount(&USBHFatFS, (const TCHAR*) USBHPath, 0);
 				isSdCardMounted = 1;
 				checkFiles();
 			}
 
-			joystickState = Joystick_State(); // poruszenie joystickiem
+			// Sprawdza wychylenie joysticka. Funkcja zwraca status, nie wartosc pomiaru.
+			// Status jest analizowany w dalszej czesci w funkcji updateMenu()
+			joystickState = Joystick_State();
+
+			// Sprawdza, czy przycisk joysticka jest wcisniety.
 			joystickButtonState = (!HAL_GPIO_ReadPin(Joystick_Button_GPIO_Port,
-			Joystick_Button_Pin)); // wcisniecie joysticka
+			Joystick_Button_Pin));
 
-			// Poruszanie joystikiem gora/dol bedzie powodowalo wybieranie opcji w menu, na razie jest na podstawie numerow.
-			// Wcisniecie przycisku "wlaczy" aktualnie wybrana opcje, na razie jedynie zapisuje jej numer
-
-			// Jezeli poruszono joystickiem w dol lub w gore
+			// Jezeli poruszono joystickiem w dol lub w gore. 
 			if (joystickState == 1 || joystickState == 2) {
 				updateMenu(&mainMenu, MAIN_MENU_LEN, &mainMenuUpDown,
 						&menuStartingPoint, joystickState);
-				//joystickMoved(&menu, joystickState);
 			}
 
-			// Jezeli wcisnieto przycisk
+			// Jezeli wcisnieto przycisk.
 			if (joystickButtonState) {
-				//menuSet = mainMenuUpDown;
 
-				while (joystickButtonState != 0) { // zapobiega ciaglemu przebiegowi while(1)
+				// Oczekiwanie na puszczenie przycisku.
+				while (joystickButtonState != 0) {
 					joystickButtonState = !HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1);
 				}
 
+				// Wyczyszczenie LCD
 				clearLCD();
-				// akcja
+
+				// Realizacja wybranej opcji.
 				menuClicked(mainMenuUpDown);
 
-				// reset:
+				// Powrot do glownego menu. Dla tego menu wystarczy je wyswietlic, dla innych trzeba wywolac odpowiednia funkcje.
 				printMenu(mainMenu, MAIN_MENU_LEN, 0); // wyswietlenie glownego menu
 				menuStartingPoint = 0; // zresetowanie punktu startowego
 				mainMenuUpDown = 0; // zresetowanie aktualnie wybranej opcji
 			}
-
-			/*if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)) {
-			 HAL_Delay(1000);
-			 if (recordingStatus == STATUS_RECORDING_ACTIVE) {
-			 BSP_AUDIO_IN_Init(DEFAULT_AUDIO_IN_FREQ,
-			 DEFAULT_AUDIO_IN_BIT_RESOLUTION,
-			 DEFAULT_AUDIO_IN_CHANNEL_NBR);
-			 HAL_GPIO_WritePin(LED_Red_GPIO_Port, LED_Red_Pin, SET);
-			 WavRecordingProcess(recordsCounter);
-			 StopRecording();
-			 HAL_GPIO_WritePin(LED_Red_GPIO_Port, LED_Red_Pin, RESET);
-			 //if (++recordsCounter >= MAX_RECORDS) // maksymalnie 10 nagran, REC0 - REC9
-			 //	recordsCounter = 0;
-			 }
-			 playingStatus = PLAY_Resume;
-			 HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
-			 HAL_Delay(1000);
-			 wavPlayer_fileSelect(WAV_FILE1);
-			 wavPlayer_play();
-
-			 while (!wavPlayer_isFinished()) {
-			 wavPlayer_process();
-			 if (playingStatus == PLAY_Pause) {
-			 HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
-			 wavPlayer_pause();
-			 while (playingStatus == PLAY_Pause) {
-			 }
-			 HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
-			 wavPlayer_resume();
-			 }
-
-			 /*
-			 if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)) {
-			 pauseResumeToggle ^= 1;
-			 if (pauseResumeToggle) {
-			 HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
-			 wavPlayer_pause();
-			 HAL_Delay(200);
-			 } else {
-			 HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15,
-			 GPIO_PIN_RESET);
-			 HAL_Delay(1000);
-			 if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)) {
-			 wavPlayer_stop();
-			 }
-			 {
-			 wavPlayer_resume();
-			 }
-			 }
-			 }
-
-			 }*/
-			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
-			playingStatus = PLAY_Idle;
-
 		}
 
 	}

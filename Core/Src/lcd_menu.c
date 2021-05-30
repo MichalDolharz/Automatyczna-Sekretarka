@@ -92,9 +92,36 @@ void handleRecordClicked(int menuNum, char *record) {
 }
 
 void handlePlay(char *record) {
+
+	char path[] = "/REC/RECn.wav";
+	int num = record[9] - '0';
+	sprintf(path, "/REC/REC%d.wav", num);
+
+	playingStatus = PLAY_Resume;
+
+	HAL_GPIO_WritePin(LED_Orange_GPIO_Port, LED_Orange_Pin, GPIO_PIN_SET);
 	setCursor(1, 4);
-	printText("Odtwarzam");
-	HAL_Delay(2000);
+	printText("Odtwarzanie:");
+	setCursor(2, 5);
+	printText("Nagranie ");
+	printNum(num);
+	HAL_Delay(1000);
+
+	wavPlayer_fileSelect(path);
+	wavPlayer_play();
+	while (!wavPlayer_isFinished()) {
+		wavPlayer_process();
+		if (playingStatus == PLAY_Pause) {
+			HAL_GPIO_WritePin(LED_Blue_GPIO_Port, LED_Blue_Pin, GPIO_PIN_SET);
+			wavPlayer_pause();
+			while (playingStatus == PLAY_Pause) {
+			}
+			HAL_GPIO_WritePin(LED_Blue_GPIO_Port, LED_Blue_Pin, GPIO_PIN_RESET);
+			wavPlayer_resume();
+		}
+		HAL_GPIO_WritePin(LED_Orange_GPIO_Port, LED_Orange_Pin, GPIO_PIN_RESET);
+	}
+	playingStatus = PLAY_Idle;
 }
 
 //
@@ -108,7 +135,7 @@ void handleRemove(char *record) {
 	char path[] = "/REC/RECn.wav";
 	int num = record[9] - '0';
 	sprintf(path, "/REC/REC%d.wav", num);
-	f_unlink(record);
+	f_unlink(path);
 	recordStatus[num] = 0;
 	setCursor(1, 5);
 	printText("Usunieto:");
@@ -135,7 +162,7 @@ void handleRecordsMenuClicked(int menuNum, char *record) {
 	setCursor(0, 0);
 	printMenu(info, sizeof(info) / sizeof(info[0]), 0);
 
-// Petla trwa dopoki nie wybierze sie opcji "Powrot"
+	// Petla trwa dopoki nie wybierze sie opcji "Powrot" bedacej na pozycji 0
 	while (!(menuUpDown == 0 && joystickButtonState == 1)) {
 
 		// Jezeli poruszono joystickiem w dol lub w gore, to aktualizuje menu
@@ -146,25 +173,30 @@ void handleRecordsMenuClicked(int menuNum, char *record) {
 
 		//Jezeli wcisnieto	przycisk
 		if (joystickButtonState) {
-			//menuSet = mainMenuUpDown;
 
-			while (joystickButtonState != 0) { // zapobiega ciaglemu przebiegowi while(1)
+			// Oczekiwanie na puszczenie przycisku.
+			while (joystickButtonState != 0)
 				joystickButtonState = !HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1);
-			}
 
+			// Wyczyszczenie LCD
 			clearLCD();
-			// akcja
+
+			// Realizacja wybranej opcji.
 			handleRecordClicked(menuUpDown, record);
 
-			// reset:
-			handleRecordsMenu();
-			menuStartingPoint = 0;             // zresetowanie punktu startowego
-			menuUpDown = 0;         // zresetowanie aktualnie wybranej opcji
+			// Powrot do menu nagran.
+			handleRecordsMenu(); // wyswietlenie menu nagran.
+			menuStartingPoint = 0; // zresetowanie punktu startowego.
+			menuUpDown = 0; // zresetowanie aktualnie wybranej opcji.
 		}
 
-		joystickState = Joystick_State(); // poruszenie joystickiem
+		// Sprawdza wychylenie joysticka. Funkcja zwraca status, nie wartosc pomiaru.
+		// Status jest analizowany w dalszej czesci w funkcji updateMenu()
+		joystickState = Joystick_State();
+
+		// Sprawdza, czy przycisk joysticka jest wcisniety.
 		joystickButtonState = (!HAL_GPIO_ReadPin(Joystick_Button_GPIO_Port,
-		Joystick_Button_Pin)); // wcisniecie joysticka
+		Joystick_Button_Pin));
 	}
 }
 
@@ -193,7 +225,7 @@ void handleRecordsMenu() {
 	setCursor(0, 0);
 	printMenu(info, sizeof(info) / sizeof(info[0]), 0);
 
-// Petla trwa dopoki nie wybierze sie opcji "Powrot"
+	// Petla trwa dopoki nie wybierze sie opcji "Powrot"
 	while (!(menuUpDown == 0 && joystickButtonState == 1)) {
 
 		// Jezeli poruszono joystickiem w dol lub w gore, to aktualizuje menu
@@ -212,51 +244,60 @@ void handleRecordsMenu() {
 
 			// brak reakcji na opcję "wolne miejsce"
 			if (info[menuUpDown][0] != 'W') {
+
+				// Wyczyszczenie LCD
 				clearLCD();
-				// akcja
+
+				// Realizacja wybranej opcji.
 				handleRecordsMenuClicked(menuUpDown, info[menuUpDown]);
 
 				// reset:
-				handleRecordsMenu();
+				handleRecordsMenu(); // wyswietlenie menu nagran
 				menuStartingPoint = 0; // zresetowanie punktu startowego
 				menuUpDown = 0; // zresetowanie aktualnie wybranej opcji
 			}
 		}
 
-		joystickState = Joystick_State(); // poruszenie joystickiem
+		// Sprawdza wychylenie joysticka. Funkcja zwraca status, nie wartosc pomiaru.
+		// Status jest analizowany w dalszej czesci w funkcji updateMenu()
+		joystickState = Joystick_State();
+
+		// Sprawdza, czy przycisk joysticka jest wcisniety.
 		joystickButtonState = (!HAL_GPIO_ReadPin(Joystick_Button_GPIO_Port,
-		Joystick_Button_Pin)); // wcisniecie joysticka
+		Joystick_Button_Pin));
 	}
 	return;
 }
 
 void handleSavedMenu() {
-	char *info[] = { "Powrot", "Zachowane 1", "Zachowane 2", "Zachowane 3",
-			"Zachowane 4", "Zachowane 5", "Zachowane 6", "Zachowane 7",
-			"Zachowane 8", "Zachowane 9", "Zachowane 10" };
+	/* *info[] = { "Powrot", "Zachowane 1", "Zachowane 2", "Zachowane 3",
+	 "Zachowane 4", "Zachowane 5", "Zachowane 6", "Zachowane 7",
+	 "Zachowane 8", "Zachowane 9", "Zachowane 10" };
 
-	int menuUpDown = 0;
+	 int menuUpDown = 0;
 
-	int joystickState = 0;
-	int joystickButtonState = 0;
-	int *menuStartingPoint = 0;
+	 int joystickState = 0;
+	 int joystickButtonState = 0;
+	 int *menuStartingPoint = 0;
 
-	setCursor(0, 0);
-	printMenu(info, sizeof(info) / sizeof(info[0]), 0);
+	 setCursor(0, 0);
+	 printMenu(info, sizeof(info) / sizeof(info[0]), 0);
 
-// Petla trwa dopoki nie wybierze sie opcji "Powrot"
-	while (!(menuUpDown == 0 && joystickButtonState == 1)) {
+	 // Petla trwa dopoki nie wybierze sie opcji "Powrot"
+	 while (!(menuUpDown == 0 && joystickButtonState == 1)) {
 
-		joystickState = Joystick_State(); // poruszenie joystickiem
-		joystickButtonState = (!HAL_GPIO_ReadPin(Joystick_Button_GPIO_Port,
-		Joystick_Button_Pin)); // wcisniecie joysticka
+	 joystickState = Joystick_State(); // poruszenie joystickiem
+	 joystickButtonState = (!HAL_GPIO_ReadPin(Joystick_Button_GPIO_Port,
+	 Joystick_Button_Pin)); // wcisniecie joysticka
 
-		// Jezeli poruszono joystickiem w dol lub w gore, to aktualizuje menu
-		if (joystickState == 1 || joystickState == 2) {
-			updateMenu(&info, sizeof(info) / sizeof(info[0]), &menuUpDown,
-					&menuStartingPoint, joystickState);
-		}
-	}
+	 // Jezeli poruszono joystickiem w dol lub w gore, to aktualizuje menu
+	 if (joystickState == 1 || joystickState == 2) {
+	 updateMenu(&info, sizeof(info) / sizeof(info[0]), &menuUpDown,
+	 &menuStartingPoint, joystickState);
+	 }
+
+
+	 }*/
 }
 
 void handleInformationMenu() {
@@ -275,39 +316,42 @@ void handleInformationMenu() {
 // Petla trwa dopoki nie wybierze sie opcji "Powrot"
 	while (!(menuUpDown == 0 && joystickButtonState == 1)) {
 
-		joystickState = Joystick_State(); // poruszenie joystickiem
-		joystickButtonState = (!HAL_GPIO_ReadPin(Joystick_Button_GPIO_Port,
-		Joystick_Button_Pin)); // wcisniecie joysticka
-
 		// Jezeli poruszono joystickiem w dol lub w gore, to aktualizuje menu
 		if (joystickState == 1 || joystickState == 2) {
 			updateMenu(&info, sizeof(info) / sizeof(info[0]), &menuUpDown,
 					&menuStartingPoint, joystickState);
 		}
+
+		// Sprawdza wychylenie joysticka. Funkcja zwraca status, nie wartosc pomiaru.
+		// Status jest analizowany w dalszej czesci w funkcji updateMenu()
+		joystickState = Joystick_State();
+
+		// Sprawdza, czy przycisk joysticka jest wcisniety.
+		joystickButtonState = (!HAL_GPIO_ReadPin(Joystick_Button_GPIO_Port,
+		Joystick_Button_Pin));
 	}
 }
 
 void checkFiles() {
-// Przeszukiwanie folderu
-	FRESULT fresult;
-	DIR dir;
-	FILINFO filinfo;
-	char *path = "/REC";
-	int num;
-	int licznik = 0;
 
-// Otworzenie katalogu
+	FRESULT fresult;
+	DIR dir; // katalog
+	FILINFO filinfo; // informacje o pliku
+	char *path = "/REC"; // sciezka do pliku
+	int num; // numer pliku
+
+	// Otworzenie katalogu
 	fresult = f_opendir(&dir, path);
 	if (fresult != FR_OK) {
 		return;
 	}
 
-// Zapełnienie zerami
+	// Zapełnienie zerami
 	for (int i = 0; i <= 9; i++) {
 		recordStatus[i] = 0;
 	}
 
-// maksymalnie moze byc 10 nagran
+	// Maksymalnie moze byc 10 nagran. Teoretycznie zdaje sie mozna dac nieskonczona petle.
 	for (int i = 0; i <= 9; i++) {
 
 		fresult = f_readdir(&dir, &filinfo);
@@ -320,17 +364,17 @@ void checkFiles() {
 
 	}
 
+	// koniec przeszukiwania folderu
 	f_closedir(&dir);
-// koniec przeszukiwania folderu
+
 }
 
 void updateMenu(char *menu[], int menuLen, int *menuUpDown,
 		int *menuStartingPoint, int joystickState) {
 
 	int position = 0;
-//int info = 0;
 
-// Tylko zmiana opcji w pionie
+	// Tylko zmiana opcji w pionie
 	switch (joystickState) {
 	case 1: // gora
 		if (*menuUpDown != menuLen - 1) {
@@ -361,7 +405,7 @@ void updateMenu(char *menu[], int menuLen, int *menuUpDown,
 	 * - przesuniecie samego wskaznika bez przesuwania menu
 	 */
 
-// Przesuniecie menu w dol
+	// Przesuniecie menu w dol
 	if (*menuUpDown < *menuStartingPoint) {
 		clearLCD();              // czysci lcd
 		*menuStartingPoint -= 1; // menu zostaje przesuniete
@@ -376,9 +420,8 @@ void updateMenu(char *menu[], int menuLen, int *menuUpDown,
 		// Ustawienie znacznika wyboru
 		setCursor(0, 0);
 		printChar(CHOICE);
-		//info = 1;
 	}
-// Przesuniecie menu w gore
+	// Przesuniecie menu w gore
 	else if (*menuUpDown > *menuStartingPoint + 3) {
 		clearLCD();              // czysci lcd
 		*menuStartingPoint += 1; // menu zostaje przesuniete
@@ -393,24 +436,23 @@ void updateMenu(char *menu[], int menuLen, int *menuUpDown,
 		// Ustawienie znacznika wyboru
 		setCursor(3, 0);
 		printChar(CHOICE);
-		//info = 2;
 	}
-// Przesuniecie wskaznika opcji
+	// Przesuniecie wskaznika opcji
 	else {
 		position = *menuUpDown - *menuStartingPoint; // nowa pozycja wskaznika opcji
 
 		// Ustawienie znacznika wyboru
 		setCursor(position, 0);
 		printChar(CHOICE);
-		//info = 3;
 	}
 
-// Oczekiwanie na wypuszczenie joysticka do pozycji 0
+	// Oczekiwanie na wypuszczenie joysticka do pozycji 0
 	while (joystickState != 0) {
 		joystickState = Joystick_State();
 	}
 }
 
+// Wypisuje na ekran 4 pozycje z danego menu. Pozycje wybierane sa na podstawie parametrow.
 void printMenu(char *menu[], int menuLen, int startingPoint) {
 
 	setCursor(0, 0);

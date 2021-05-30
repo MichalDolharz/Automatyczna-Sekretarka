@@ -18,9 +18,9 @@
 extern Lcd_HandleTypeDef lcd;
 extern int debug;
 extern uint8_t recordsCounter;
+extern PLAY_State_e playingStatus;
 
 int recordStatus[10];
-;
 
 void printMenu(char *menu[], int menuLen, int startingPoint);
 void printText(char *string);

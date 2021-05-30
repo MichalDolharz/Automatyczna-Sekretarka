@@ -55,6 +55,8 @@ void WavRecordingProcess(uint8_t recordNumber) {
 	// Rozmiar nagranych danych w bajtach
 	uint32_t bytesWritten = 0;
 
+	int joystickButtonState = 0;
+
 	// Zamontowanie zew. pamieci USB
 	/*if (f_mount(&USBHFatFS, USBHPath, 1) != FR_OK) {
 	 Info_UART("NIE ZAMONTOWANO POPRAWNIE USB (main.c)\r\n");
@@ -62,7 +64,7 @@ void WavRecordingProcess(uint8_t recordNumber) {
 	 Info_UART("Zamontowano USB\r\n");
 	 }
 	 */
-	// Ustalenie nazwy pliku
+	// Ustalenie nazwy pliku wraz ze sciezka
 	char filename[] = "/REC/RECn.wav";
 	sprintf(filename, "/REC/REC%d.wav", recordNumber);
 	Info_UART("Nazwa pliku: ");
@@ -106,13 +108,14 @@ void WavRecordingProcess(uint8_t recordNumber) {
 	// licznik danych
 	counter = 0;
 
+	recordingStatus = STATUS_RECORDING_ACTIVE;
+
 	while (1) {
 		// Jezeli czas nagrywania nie zostal przekroczony
 		if (recordingTime <= MAX_RECORDING_TIME) {
 
 			// Sprawdza, czy sa dostepne dane do wprowadzenia do pliku .wav
 			if (dataReady) {
-				//HAL_GPIO_WritePin(LED_Green_GPIO_Port, LED_Green_Pin, 1);
 				// Wyzerowanie flagi
 				dataReady = 0;
 
@@ -127,10 +130,15 @@ void WavRecordingProcess(uint8_t recordNumber) {
 				dataSize += bytesWritten;
 			}
 
-			// Jezeli przycisk zostal wcisniety, to zmienil sie status nagrywania
-			if (recordingStatus == STATUS_RECORDING_INACTIVE) {
+			// Sprawdza czy przycisik wcisniety
+			joystickButtonState = (!HAL_GPIO_ReadPin(Joystick_Button_GPIO_Port,
+			Joystick_Button_Pin));
+
+			// Jezeli przycisk wcisniety, to koniec nagrywania
+			if (joystickButtonState) {
 				StopRecording();
 				Info_UART("Koniec nagrywania - przycisk\r\n");
+				recordingStatus = STATUS_RECORDING_INACTIVE;
 				break;
 			}
 		}
@@ -138,8 +146,9 @@ void WavRecordingProcess(uint8_t recordNumber) {
 		else {
 			StopRecording();
 			dataReady = 0;
-			recordingStatus = STATUS_RECORDING_INACTIVE; // zmiana statusu
+			//recordingStatus = STATUS_RECORDING_INACTIVE; // zmiana statusu
 			Info_UART("Koniec nagrywania - timeout\r\n");
+			recordingStatus = STATUS_RECORDING_INACTIVE;
 			break;
 		}
 	}
