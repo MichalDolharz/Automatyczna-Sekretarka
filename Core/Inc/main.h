@@ -82,6 +82,8 @@ void Error_Handler(void);
 #define LED_Red_GPIO_Port GPIOD
 #define LED_Blue_Pin GPIO_PIN_15
 #define LED_Blue_GPIO_Port GPIOD
+#define LCD_Light_Pin GPIO_PIN_2
+#define LCD_Light_GPIO_Port GPIOD
 #define AUDIO_RST_Pin GPIO_PIN_4
 #define AUDIO_RST_GPIO_Port GPIOD
 #define LCD_D7_Pin GPIO_PIN_6
