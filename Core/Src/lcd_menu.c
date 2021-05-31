@@ -112,11 +112,15 @@ void handlePlay(char *record) {
 	while (!wavPlayer_isFinished()) {
 		wavPlayer_process();
 		if (playingStatus == PLAY_Pause) {
+			setCursor(3, 7);
+			printText("Pauza");
 			HAL_GPIO_WritePin(LED_Blue_GPIO_Port, LED_Blue_Pin, GPIO_PIN_SET);
 			wavPlayer_pause();
 			while (playingStatus == PLAY_Pause) {
 			}
 			HAL_GPIO_WritePin(LED_Blue_GPIO_Port, LED_Blue_Pin, GPIO_PIN_RESET);
+			setCursor(3, 7);
+			printText("     ");
 			wavPlayer_resume();
 		}
 		HAL_GPIO_WritePin(LED_Orange_GPIO_Port, LED_Orange_Pin, GPIO_PIN_RESET);

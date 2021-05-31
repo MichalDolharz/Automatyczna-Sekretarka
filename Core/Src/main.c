@@ -245,7 +245,7 @@ int main(void) {
 			joystickButtonState = (!HAL_GPIO_ReadPin(Joystick_Button_GPIO_Port,
 			Joystick_Button_Pin));
 
-			// Jezeli poruszono joystickiem w dol lub w gore. 
+			// Jezeli poruszono joystickiem w dol lub w gore.
 			if (joystickState == 1 || joystickState == 2) {
 				updateMenu(&mainMenu, MAIN_MENU_LEN, &mainMenuUpDown,
 						&menuStartingPoint, joystickState);
