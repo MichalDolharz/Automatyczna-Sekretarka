@@ -9,12 +9,7 @@ void menuClicked(int menuNum) {
 	case 1: // wiadomosci
 		handleRecordsMenu();
 		break;
-	case 2: // zachowane
-		handleSavedMenu();
-		break;
-	case 3: // ustawienia
-		break;
-	case 4: // informacje
+	case 2: // informacje
 		handleInformationMenu();
 		break;
 	}
@@ -76,13 +71,10 @@ void handleRecording() {
 void handleRecordClicked(int menuNum, char *record) {
 
 	switch (menuNum) {
-	case 2: // wiadomosci
+	case 2: // Odtwarzanie
 		handlePlay(record);
 		break;
-	case 3: // zachowane
-		handleSave(record);
-		break;
-	case 4: // informacje
+	case 3: //Usuwanie
 		handleRemove(record);
 		break;
 	}
@@ -109,7 +101,7 @@ void handlePlay(char *record) {
 
 	wavPlayer_fileSelect(path);
 	wavPlayer_play();
-	while (!wavPlayer_isFinished()) {
+	while (!wavPlayer_isFinished()&&Joystick_State()!=3) {
 		wavPlayer_process();
 		if (playingStatus == PLAY_Pause) {
 			setCursor(3, 7);
@@ -123,18 +115,20 @@ void handlePlay(char *record) {
 			printText("     ");
 			wavPlayer_resume();
 		}
-		HAL_GPIO_WritePin(LED_Orange_GPIO_Port, LED_Orange_Pin, GPIO_PIN_RESET);
+
 	}
+	wavPlayer_stop();
+	HAL_GPIO_WritePin(LED_Orange_GPIO_Port, LED_Orange_Pin, GPIO_PIN_RESET);
 	playingStatus = PLAY_Idle;
 }
 
-//
+/*
 void handleSave(char *record) {
 	setCursor(1, 4);
 	printText("Zapisuje");
 	HAL_Delay(2000);
 }
-
+*/
 void handleRemove(char *record) {
 	char path[] = "/REC/RECn.wav";
 	int num = record[9] - '0';
@@ -151,7 +145,7 @@ void handleRemove(char *record) {
 
 void handleRecordsMenuClicked(int menuNum, char *record) {
 
-	char *info[] = { "Powrot", record, " - Odtworz", " - Zachowaj", " - Usun" };
+	char *info[] = { "Powrot", record, " - Odtworz", " - Usun" };
 
 //char tmp;
 //sprintf(tmp, "Powrot | rec: %s", record);
@@ -167,7 +161,7 @@ void handleRecordsMenuClicked(int menuNum, char *record) {
 	printMenu(info, sizeof(info) / sizeof(info[0]), 0);
 
 	// Petla trwa dopoki nie wybierze sie opcji "Powrot" bedacej na pozycji 0
-	while (!(menuUpDown == 0 && joystickButtonState == 1)) {
+	while (!(menuUpDown == 0 && joystickButtonState == 1) &&joystickState!=3) {
 
 		// Jezeli poruszono joystickiem w dol lub w gore, to aktualizuje menu
 		if (joystickState == 1 || joystickState == 2) {
@@ -202,6 +196,7 @@ void handleRecordsMenuClicked(int menuNum, char *record) {
 		joystickButtonState = (!HAL_GPIO_ReadPin(Joystick_Button_GPIO_Port,
 		Joystick_Button_Pin));
 	}
+	HAL_Delay(100);
 }
 
 void handleRecordsMenu() {
@@ -230,7 +225,7 @@ void handleRecordsMenu() {
 	printMenu(info, sizeof(info) / sizeof(info[0]), 0);
 
 	// Petla trwa dopoki nie wybierze sie opcji "Powrot"
-	while (!(menuUpDown == 0 && joystickButtonState == 1)) {
+	while (!(menuUpDown == 0 && joystickButtonState == 1)&&joystickState!=3) {
 
 		// Jezeli poruszono joystickiem w dol lub w gore, to aktualizuje menu
 		if (joystickState == 1 || joystickState == 2) {
@@ -270,6 +265,7 @@ void handleRecordsMenu() {
 		joystickButtonState = (!HAL_GPIO_ReadPin(Joystick_Button_GPIO_Port,
 		Joystick_Button_Pin));
 	}
+	HAL_Delay(100);
 	return;
 }
 
@@ -318,7 +314,7 @@ void handleInformationMenu() {
 	printMenu(info, sizeof(info) / sizeof(info[0]), 0);
 
 // Petla trwa dopoki nie wybierze sie opcji "Powrot"
-	while (!(menuUpDown == 0 && joystickButtonState == 1)) {
+	while (!(menuUpDown == 0 && joystickButtonState == 1)&&Joystick_State()!=3) {
 
 		// Jezeli poruszono joystickiem w dol lub w gore, to aktualizuje menu
 		if (joystickState == 1 || joystickState == 2) {
@@ -334,6 +330,7 @@ void handleInformationMenu() {
 		joystickButtonState = (!HAL_GPIO_ReadPin(Joystick_Button_GPIO_Port,
 		Joystick_Button_Pin));
 	}
+	HAL_Delay(100);
 }
 
 void checkFiles() {

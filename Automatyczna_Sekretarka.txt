@@ -1,0 +1,144 @@
+Configuration	Automatyczna_Sekretarka
+STM32CubeMX 	6.2.1
+Date	06/07/2021
+MCU	STM32F411VETx
+
+
+
+PERIPHERALS	MODES	FUNCTIONS	PINS
+ADC1	IN6	ADC1_IN6	PA6
+ADC1	IN7	ADC1_IN7	PA7
+I2C1	I2C	I2C1_SCL	PB6
+I2C1	I2C	I2C1_SDA	PB9
+I2S2	Half-Duplex Slave	I2S2_CK	PB10
+I2S2	Half-Duplex Slave	I2S2_SD	PC3
+I2S2	Half-Duplex Slave	I2S2_WS	PB12
+I2S3	Half-Duplex Master	I2S3_CK	PC10
+I2S3	Half-Duplex Master	I2S3_SD	PC12
+I2S3	Half-Duplex Master	I2S3_WS	PA4
+I2S3	Activated	I2S3_MCK	PC7
+RCC	Crystal/Ceramic Resonator	RCC_OSC_IN	PH0 - OSC_IN
+RCC	Crystal/Ceramic Resonator	RCC_OSC_OUT	PH1 - OSC_OUT
+SYS	SysTick	SYS_VS_Systick	VP_SYS_VS_Systick
+USART2	Asynchronous	USART2_RX	PA3
+USART2	Asynchronous	USART2_TX	PA2
+USB_OTG_FS	Host_Only	USB_OTG_FS_DM	PA11
+USB_OTG_FS	Host_Only	USB_OTG_FS_DP	PA12
+USB_OTG_FS	Activate VBUS	USB_OTG_FS_VBUS	PA9
+
+
+
+Pin Nb	PINs	FUNCTIONs	LABELs
+7	PC13-ANTI_TAMP	GPIO_Output	LCD_E
+9	PC15-OSC32_OUT	GPIO_Output	LCD_RS
+12	PH0 - OSC_IN	RCC_OSC_IN	
+13	PH1 - OSC_OUT	RCC_OSC_OUT	
+15	PC0	GPIO_Output	VBUS_Pin
+18	PC3	I2S2_SD	
+24	PA1	GPIO_EXTI1	Joystick_Button
+25	PA2	USART2_TX	
+26	PA3	USART2_RX	
+29	PA4	I2S3_WS	
+31	PA6	ADC1_IN6	ADC1_6_VRx
+32	PA7	ADC1_IN7	ADC1_7_VRy
+47	PB10	I2S2_CK	
+51	PB12	I2S2_WS	
+59	PD12	GPIO_Output	LED_Green
+60	PD13	GPIO_Output	LED_Orange
+61	PD14	GPIO_Output	LED_Red
+62	PD15	GPIO_Output	LED_Blue
+64	PC7	I2S3_MCK	
+68	PA9	USB_OTG_FS_VBUS	
+70	PA11	USB_OTG_FS_DM	
+71	PA12	USB_OTG_FS_DP	
+78	PC10	I2S3_CK	
+80	PC12	I2S3_SD	
+85	PD4	GPIO_Output	AUDIO_RST
+87	PD6	GPIO_Output	LCD_D7
+89	PB3	GPIO_Output	LCD_D6
+91	PB5	GPIO_Output	LCD_D5
+92	PB6	I2C1_SCL	
+93	PB7	GPIO_Output	LCD_D4
+96	PB9	I2C1_SDA	
+PERIPHERALS	MODES	FUNCTIONS	PINS
+ADC1	IN6	ADC1_IN6	PA6
+ADC1	IN7	ADC1_IN7	PA7
+I2C1	I2C	I2C1_SCL	PB6
+I2C1	I2C	I2C1_SDA	PB9
+I2S2	Half-Duplex Slave	I2S2_CK	PB10
+I2S2	Half-Duplex Slave	I2S2_SD	PC3
+I2S2	Half-Duplex Slave	I2S2_WS	PB12
+I2S3	Half-Duplex Master	I2S3_CK	PC10
+I2S3	Half-Duplex Master	I2S3_SD	PC12
+I2S3	Half-Duplex Master	I2S3_WS	PA4
+I2S3	Activated	I2S3_MCK	PC7
+RCC	Crystal/Ceramic Resonator	RCC_OSC_IN	PH0 - OSC_IN
+RCC	Crystal/Ceramic Resonator	RCC_OSC_OUT	PH1 - OSC_OUT
+SYS	SysTick	SYS_VS_Systick	VP_SYS_VS_Systick
+USART2	Asynchronous	USART2_RX	PA3
+USART2	Asynchronous	USART2_TX	PA2
+USB_OTG_FS	Host_Only	USB_OTG_FS_DM	PA11
+USB_OTG_FS	Host_Only	USB_OTG_FS_DP	PA12
+USB_OTG_FS	Activate VBUS	USB_OTG_FS_VBUS	PA9
+
+
+
+Pin Nb	PINs	FUNCTIONs	LABELs
+7	PC13-ANTI_TAMP	GPIO_Output	LCD_E
+9	PC15-OSC32_OUT	GPIO_Output	LCD_RS
+12	PH0 - OSC_IN	RCC_OSC_IN	
+13	PH1 - OSC_OUT	RCC_OSC_OUT	
+15	PC0	GPIO_Output	VBUS_Pin
+18	PC3	I2S2_SD	
+24	PA1	GPIO_EXTI1	Joystick_Button
+25	PA2	USART2_TX	
+26	PA3	USART2_RX	
+29	PA4	I2S3_WS	
+31	PA6	ADC1_IN6	ADC1_6_VRx
+32	PA7	ADC1_IN7	ADC1_7_VRy
+47	PB10	I2S2_CK	
+51	PB12	I2S2_WS	
+59	PD12	GPIO_Output	LED_Green
+60	PD13	GPIO_Output	LED_Orange
+61	PD14	GPIO_Output	LED_Red
+62	PD15	GPIO_Output	LED_Blue
+64	PC7	I2S3_MCK	
+68	PA9	USB_OTG_FS_VBUS	
+70	PA11	USB_OTG_FS_DM	
+71	PA12	USB_OTG_FS_DP	
+78	PC10	I2S3_CK	
+80	PC12	I2S3_SD	
+85	PD4	GPIO_Output	AUDIO_RST
+87	PD6	GPIO_Output	LCD_D7
+89	PB3	GPIO_Output	LCD_D6
+91	PB5	GPIO_Output	LCD_D5
+92	PB6	I2C1_SCL	
+93	PB7	GPIO_Output	LCD_D4
+96	PB9	I2C1_SDA	
+
+
+
+SOFTWARE PROJECT
+
+Project Settings : 
+Project Name : Automatyczna_Sekretarka
+Project Folder : C:\Users\Admin\STM32CubeIDE\workspace_1.4.0\Automatyczna_Sekretarka\Automatyczna-Sekretarka
+Toolchain / IDE : STM32CubeIDE
+Firmware Package Name and Version : STM32Cube FW_F4 V1.26.1
+
+
+Code Generation Settings : 
+STM32Cube MCU packages and embedded software packs : Copy only the necessary library files
+Generate peripheral initialization as a pair of '.c/.h' files per peripheral : No
+Backup previously generated files when re-generating : No
+Delete previously generated files when not re-generated : Yes
+Set all free pins as analog (to optimize the power consumption) : No
+
+
+Toolchains Settings : 
+Compiler Optimizations : 
+
+
+
+
+
